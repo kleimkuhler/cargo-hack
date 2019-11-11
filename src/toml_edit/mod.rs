@@ -1,5 +1,11 @@
 #![deny(missing_docs)]
-#![allow(rust_2018_idioms, single_use_lifetimes, unreachable_pub)]
+#![allow(
+    rust_2018_idioms,
+    single_use_lifetimes,
+    dead_code,
+    unreachable_pub,
+    clippy::type_complexity
+)]
 
 //! # `toml_edit`
 //!
@@ -198,7 +204,7 @@ pub(crate) mod display {
         decor::{Formatted, Repr},
         document::Document,
         table::{Item, Table},
-        value::{Array, DateTime, InlineTable, Value},
+        value::{Array, InlineTable, Value},
     };
     use std::fmt::{Display, Formatter, Result, Write};
     impl Display for Repr {
@@ -211,16 +217,6 @@ pub(crate) mod display {
             write!(f, "{}", self.repr)
         }
     }
-    impl Display for DateTime {
-        fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-            match *self {
-                DateTime::OffsetDateTime(d) => write!(f, "{}", d),
-                DateTime::LocalDateTime(d) => write!(f, "{}", d),
-                DateTime::LocalDate(d) => write!(f, "{}", d),
-                DateTime::LocalTime(d) => write!(f, "{}", d),
-            }
-        }
-    }
     impl Display for Value {
         fn fmt(&self, f: &mut Formatter<'_>) -> Result {
             match *self {
@@ -228,7 +224,6 @@ pub(crate) mod display {
                 Value::String(ref repr) => write!(f, "{}", repr),
                 Value::Float(ref repr) => write!(f, "{}", repr),
                 Value::Boolean(ref repr) => write!(f, "{}", repr),
-                Value::DateTime(ref repr) => write!(f, "{}", repr),
                 Value::Array(ref array) => write!(f, "{}", array),
                 Value::InlineTable(ref table) => write!(f, "{}", table),
             }
@@ -436,7 +431,7 @@ pub(crate) mod formatted {
         key::Key,
         parser::{strings, TomlError},
         table::{Item, KeyValuePairs, TableKeyValue},
-        value::{Array, DateTime, InlineTable, Value},
+        value::{Array, InlineTable, Value},
     };
     use combine::stream::state::State;
     use std::iter::FromIterator;
@@ -472,7 +467,6 @@ pub(crate) mod formatted {
             Value::Integer(ref mut f) => &mut f.repr.decor,
             Value::String(ref mut f) => &mut f.repr.decor,
             Value::Float(ref mut f) => &mut f.repr.decor,
-            Value::DateTime(ref mut f) => &mut f.repr.decor,
             Value::Boolean(ref mut f) => &mut f.repr.decor,
             Value::Array(ref mut a) => &mut a.decor,
             Value::InlineTable(ref mut t) => &mut t.decor,
@@ -503,9 +497,6 @@ pub(crate) mod formatted {
                 f.repr.raw_value = String::from(raw);
             }
             Value::Float(ref mut f) => {
-                f.repr.raw_value = String::from(raw);
-            }
-            Value::DateTime(ref mut f) => {
                 f.repr.raw_value = String::from(raw);
             }
             Value::Boolean(ref mut f) => {
@@ -564,8 +555,8 @@ pub(crate) mod formatted {
                 .unwrap_or_else(|e| panic!("toml string parse error: {}, {}", e, s))
         }
     }
-    impl<'b> From<&'b str> for Value {
-        fn from(s: &'b str) -> Self {
+    impl From<&str> for Value {
+        fn from(s: &str) -> Self {
             let (value, raw) = parse_string_guess_delimiters(s);
             Value::String(Formatted::new(value, Repr::new("".to_string(), raw, "".to_string())))
         }
@@ -578,12 +569,6 @@ pub(crate) mod formatted {
     impl From<bool> for Value {
         fn from(b: bool) -> Self {
             Value::Boolean(Formatted::new(b, Repr::new("", if b { "true" } else { "false" }, "")))
-        }
-    }
-    impl From<DateTime> for Value {
-        fn from(d: DateTime) -> Self {
-            let s = d.to_string();
-            Value::DateTime(Formatted::new(d, Repr::new("".to_string(), s, "".to_string())))
         }
     }
     impl From<Array> for Value {
@@ -643,7 +628,7 @@ pub(crate) mod index {
         impl Sealed for usize {}
         impl Sealed for str {}
         impl Sealed for String {}
-        impl<'a, T: ?Sized> Sealed for &'a T where T: Sealed {}
+        impl<T: ?Sized> Sealed for &T where T: Sealed {}
     }
     pub trait Index: private::Sealed {
         /// Return `Option::None` if the key is not already in the array or table.
@@ -715,7 +700,7 @@ pub(crate) mod index {
             self[..].index_or_insert(v)
         }
     }
-    impl<'a, T: ?Sized> Index for &'a T
+    impl<T: ?Sized> Index for &T
     where
         T: Index,
     {
@@ -865,7 +850,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> Array>,
@@ -882,7 +866,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -985,7 +968,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             array { __marker: ::combine::lib::marker::PhantomData }
@@ -1024,7 +1006,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> (Vec<Value>, bool, &'a str)>,
@@ -1041,7 +1022,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -1171,7 +1151,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             array_values { __marker: ::combine::lib::marker::PhantomData }
@@ -1188,7 +1167,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> Value>,
@@ -1205,7 +1183,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -1299,643 +1276,9 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             array_value { __marker: ::combine::lib::marker::PhantomData }
-        }
-    }
-    pub(crate) mod datetime {
-        use super::super::value;
-        use combine::{
-            char::{char, digit},
-            combinator::{skip_count_min_max, SkipCountMinMax},
-            range::{recognize, recognize_with_value},
-            stream::RangeStream,
-            *,
-        };
-        #[inline]
-        pub fn repeat<P: Parser>(count: usize, parser: P) -> SkipCountMinMax<P> {
-            skip_count_min_max(count, count, parser)
-        }
-        #[allow(non_camel_case_types)]
-        pub struct date_time<'a, I>
-        where
-            <I as ::combine::stream::StreamOnce>::Error: ::combine::error::ParseError<
-                <I as ::combine::stream::StreamOnce>::Item,
-                <I as ::combine::stream::StreamOnce>::Range,
-                <I as ::combine::stream::StreamOnce>::Position,
-            >,
-            I: RangeStream<Range = &'a str, Item = char>,
-            I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
-            <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
-                + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
-                + From<crate::parser::errors::CustomError>,
-        {
-            __marker: ::combine::lib::marker::PhantomData<fn(I) -> value::DateTime>,
-        }
-        #[allow(non_shorthand_field_patterns)]
-        impl<'a, I> ::combine::Parser for date_time<'a, I>
-        where
-            <I as ::combine::stream::StreamOnce>::Error: ::combine::error::ParseError<
-                <I as ::combine::stream::StreamOnce>::Item,
-                <I as ::combine::stream::StreamOnce>::Range,
-                <I as ::combine::stream::StreamOnce>::Position,
-            >,
-            I: RangeStream<Range = &'a str, Item = char>,
-            I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
-            <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
-                + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
-                + From<crate::parser::errors::CustomError>,
-        {
-            type Input = I;
-            type Output = value::DateTime;
-            type PartialState = ();
-            #[inline]
-            fn parse_partial(
-                &mut self,
-                input: &mut Self::Input,
-                state: &mut Self::PartialState,
-            ) -> ::combine::error::ConsumedResult<Self::Output, Self::Input> {
-                self.parse_mode(::combine::parser::PartialMode::default(), input, state)
-            }
-            #[inline]
-            fn parse_first(
-                &mut self,
-                input: &mut Self::Input,
-                state: &mut Self::PartialState,
-            ) -> ::combine::error::ConsumedResult<Self::Output, Self::Input> {
-                self.parse_mode(::combine::parser::FirstMode, input, state)
-            }
-            #[inline]
-            fn parse_mode_impl<M>(
-                &mut self,
-                mode: M,
-                input: &mut Self::Input,
-                state: &mut Self::PartialState,
-            ) -> ::combine::error::ConsumedResult<value::DateTime, I>
-            where
-                M: ::combine::parser::ParseMode,
-            {
-                let date_time { .. } = *self;
-                {
-                    let _ = state;
-                    let mut state = Default::default();
-                    let state = &mut state;
-                    {
-                        {
-                            recognize_with_value((
-                                full_date(),
-                                optional((char('T'), partial_time(), optional(time_offset()))),
-                            ))
-                            .and_then(|(s, (_, opt))| match opt {
-                                Some((_, _, Some(_))) => chrono::DateTime::parse_from_rfc3339(s)
-                                    .map(value::DateTime::OffsetDateTime),
-                                Some(_) => s
-                                    .parse::<chrono::NaiveDateTime>()
-                                    .map(value::DateTime::LocalDateTime),
-                                None => {
-                                    s.parse::<chrono::NaiveDate>().map(value::DateTime::LocalDate)
-                                }
-                            })
-                            .or(recognize(partial_time())
-                                .and_then(str::parse)
-                                .message("While parsing a Time")
-                                .map(value::DateTime::LocalTime))
-                            .message("While parsing a Date-Time")
-                        }
-                    }
-                    .parse_mode(mode, input, state)
-                }
-            }
-            #[inline]
-            fn add_error(
-                &mut self,
-                errors: &mut ::combine::error::Tracked<<I as ::combine::stream::StreamOnce>::Error>,
-            ) {
-                let date_time { .. } = *self;
-                let mut parser = {
-                    {
-                        recognize_with_value((
-                            full_date(),
-                            optional((char('T'), partial_time(), optional(time_offset()))),
-                        ))
-                        .and_then(|(s, (_, opt))| match opt {
-                            Some((_, _, Some(_))) => chrono::DateTime::parse_from_rfc3339(s)
-                                .map(value::DateTime::OffsetDateTime),
-                            Some(_) => s
-                                .parse::<chrono::NaiveDateTime>()
-                                .map(value::DateTime::LocalDateTime),
-                            None => s.parse::<chrono::NaiveDate>().map(value::DateTime::LocalDate),
-                        })
-                        .or(recognize(partial_time())
-                            .and_then(str::parse)
-                            .message("While parsing a Time")
-                            .map(value::DateTime::LocalTime))
-                        .message("While parsing a Date-Time")
-                    }
-                };
-                {
-                    let _: &mut dyn (::combine::Parser<
-                        Input = I,
-                        Output = value::DateTime,
-                        PartialState = _,
-                    >) = &mut parser;
-                }
-                parser.add_error(errors)
-            }
-            fn add_consumed_expected_error(
-                &mut self,
-                errors: &mut ::combine::error::Tracked<<I as ::combine::stream::StreamOnce>::Error>,
-            ) {
-                let date_time { .. } = *self;
-                let mut parser = {
-                    {
-                        recognize_with_value((
-                            full_date(),
-                            optional((char('T'), partial_time(), optional(time_offset()))),
-                        ))
-                        .and_then(|(s, (_, opt))| match opt {
-                            Some((_, _, Some(_))) => chrono::DateTime::parse_from_rfc3339(s)
-                                .map(value::DateTime::OffsetDateTime),
-                            Some(_) => s
-                                .parse::<chrono::NaiveDateTime>()
-                                .map(value::DateTime::LocalDateTime),
-                            None => s.parse::<chrono::NaiveDate>().map(value::DateTime::LocalDate),
-                        })
-                        .or(recognize(partial_time())
-                            .and_then(str::parse)
-                            .message("While parsing a Time")
-                            .map(value::DateTime::LocalTime))
-                        .message("While parsing a Date-Time")
-                    }
-                };
-                {
-                    let _: &mut ::combine::Parser<
-                        Input = I,
-                        Output = value::DateTime,
-                        PartialState = _,
-                    > = &mut parser;
-                }
-                parser.add_consumed_expected_error(errors)
-            }
-        }
-        #[inline]
-        pub fn date_time<'a, I>() -> date_time<'a, I>
-        where
-            <I as ::combine::stream::StreamOnce>::Error: ::combine::error::ParseError<
-                <I as ::combine::stream::StreamOnce>::Item,
-                <I as ::combine::stream::StreamOnce>::Range,
-                <I as ::combine::stream::StreamOnce>::Position,
-            >,
-            I: RangeStream<Range = &'a str, Item = char>,
-            I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
-            <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
-                + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
-                + From<crate::parser::errors::CustomError>,
-        {
-            date_time { __marker: ::combine::lib::marker::PhantomData }
-        }
-        #[allow(non_camel_case_types)]
-        pub struct full_date<'a, I>
-        where
-            <I as ::combine::stream::StreamOnce>::Error: ::combine::error::ParseError<
-                <I as ::combine::stream::StreamOnce>::Item,
-                <I as ::combine::stream::StreamOnce>::Range,
-                <I as ::combine::stream::StreamOnce>::Position,
-            >,
-            I: RangeStream<Range = &'a str, Item = char>,
-            I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
-            <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
-                + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
-                + From<crate::parser::errors::CustomError>,
-        {
-            __marker: ::combine::lib::marker::PhantomData<fn(I) -> &'a str>,
-        }
-        #[allow(non_shorthand_field_patterns)]
-        impl<'a, I> ::combine::Parser for full_date<'a, I>
-        where
-            <I as ::combine::stream::StreamOnce>::Error: ::combine::error::ParseError<
-                <I as ::combine::stream::StreamOnce>::Item,
-                <I as ::combine::stream::StreamOnce>::Range,
-                <I as ::combine::stream::StreamOnce>::Position,
-            >,
-            I: RangeStream<Range = &'a str, Item = char>,
-            I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
-            <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
-                + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
-                + From<crate::parser::errors::CustomError>,
-        {
-            type Input = I;
-            type Output = &'a str;
-            type PartialState = ();
-            #[inline]
-            fn parse_partial(
-                &mut self,
-                input: &mut Self::Input,
-                state: &mut Self::PartialState,
-            ) -> ::combine::error::ConsumedResult<Self::Output, Self::Input> {
-                self.parse_mode(::combine::parser::PartialMode::default(), input, state)
-            }
-            #[inline]
-            fn parse_first(
-                &mut self,
-                input: &mut Self::Input,
-                state: &mut Self::PartialState,
-            ) -> ::combine::error::ConsumedResult<Self::Output, Self::Input> {
-                self.parse_mode(::combine::parser::FirstMode, input, state)
-            }
-            #[inline]
-            fn parse_mode_impl<M>(
-                &mut self,
-                mode: M,
-                input: &mut Self::Input,
-                state: &mut Self::PartialState,
-            ) -> ::combine::error::ConsumedResult<&'a str, I>
-            where
-                M: ::combine::parser::ParseMode,
-            {
-                let full_date { .. } = *self;
-                {
-                    let _ = state;
-                    let mut state = Default::default();
-                    let state = &mut state;
-                    {
-                        {
-                            recognize((
-                                attempt((repeat(4, digit()), char('-'))),
-                                repeat(2, digit()),
-                                char('-'),
-                                repeat(2, digit()),
-                            ))
-                        }
-                    }
-                    .parse_mode(mode, input, state)
-                }
-            }
-            #[inline]
-            fn add_error(
-                &mut self,
-                errors: &mut ::combine::error::Tracked<<I as ::combine::stream::StreamOnce>::Error>,
-            ) {
-                let full_date { .. } = *self;
-                let mut parser = {
-                    {
-                        recognize((
-                            attempt((repeat(4, digit()), char('-'))),
-                            repeat(2, digit()),
-                            char('-'),
-                            repeat(2, digit()),
-                        ))
-                    }
-                };
-                {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
-                        &mut parser;
-                }
-                parser.add_error(errors)
-            }
-            fn add_consumed_expected_error(
-                &mut self,
-                errors: &mut ::combine::error::Tracked<<I as ::combine::stream::StreamOnce>::Error>,
-            ) {
-                let full_date { .. } = *self;
-                let mut parser = {
-                    {
-                        recognize((
-                            attempt((repeat(4, digit()), char('-'))),
-                            repeat(2, digit()),
-                            char('-'),
-                            repeat(2, digit()),
-                        ))
-                    }
-                };
-                {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
-                        &mut parser;
-                }
-                parser.add_consumed_expected_error(errors)
-            }
-        }
-        #[inline]
-        pub fn full_date<'a, I>() -> full_date<'a, I>
-        where
-            <I as ::combine::stream::StreamOnce>::Error: ::combine::error::ParseError<
-                <I as ::combine::stream::StreamOnce>::Item,
-                <I as ::combine::stream::StreamOnce>::Range,
-                <I as ::combine::stream::StreamOnce>::Position,
-            >,
-            I: RangeStream<Range = &'a str, Item = char>,
-            I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
-            <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
-                + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
-                + From<crate::parser::errors::CustomError>,
-        {
-            full_date { __marker: ::combine::lib::marker::PhantomData }
-        }
-        #[allow(non_camel_case_types)]
-        pub struct partial_time<'a, I>
-        where
-            <I as ::combine::stream::StreamOnce>::Error: ::combine::error::ParseError<
-                <I as ::combine::stream::StreamOnce>::Item,
-                <I as ::combine::stream::StreamOnce>::Range,
-                <I as ::combine::stream::StreamOnce>::Position,
-            >,
-            I: RangeStream<Range = &'a str, Item = char>,
-            I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
-            <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
-                + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
-                + From<crate::parser::errors::CustomError>,
-        {
-            __marker: ::combine::lib::marker::PhantomData<fn(I) -> ()>,
-        }
-        #[allow(non_shorthand_field_patterns)]
-        impl<'a, I> ::combine::Parser for partial_time<'a, I>
-        where
-            <I as ::combine::stream::StreamOnce>::Error: ::combine::error::ParseError<
-                <I as ::combine::stream::StreamOnce>::Item,
-                <I as ::combine::stream::StreamOnce>::Range,
-                <I as ::combine::stream::StreamOnce>::Position,
-            >,
-            I: RangeStream<Range = &'a str, Item = char>,
-            I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
-            <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
-                + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
-                + From<crate::parser::errors::CustomError>,
-        {
-            type Input = I;
-            type Output = ();
-            type PartialState = ();
-            #[inline]
-            fn parse_partial(
-                &mut self,
-                input: &mut Self::Input,
-                state: &mut Self::PartialState,
-            ) -> ::combine::error::ConsumedResult<Self::Output, Self::Input> {
-                self.parse_mode(::combine::parser::PartialMode::default(), input, state)
-            }
-            #[inline]
-            fn parse_first(
-                &mut self,
-                input: &mut Self::Input,
-                state: &mut Self::PartialState,
-            ) -> ::combine::error::ConsumedResult<Self::Output, Self::Input> {
-                self.parse_mode(::combine::parser::FirstMode, input, state)
-            }
-            #[inline]
-            fn parse_mode_impl<M>(
-                &mut self,
-                mode: M,
-                input: &mut Self::Input,
-                state: &mut Self::PartialState,
-            ) -> ::combine::error::ConsumedResult<(), I>
-            where
-                M: ::combine::parser::ParseMode,
-            {
-                let partial_time { .. } = *self;
-                {
-                    let _ = state;
-                    let mut state = Default::default();
-                    let state = &mut state;
-                    {
-                        {
-                            (
-                                attempt((repeat(2, digit()), char(':'))),
-                                repeat(2, digit()),
-                                char(':'),
-                                repeat(2, digit()),
-                                optional(attempt(char('.')).and(skip_many1(digit()))),
-                            )
-                                .map(|_| ())
-                        }
-                    }
-                    .parse_mode(mode, input, state)
-                }
-            }
-            #[inline]
-            fn add_error(
-                &mut self,
-                errors: &mut ::combine::error::Tracked<<I as ::combine::stream::StreamOnce>::Error>,
-            ) {
-                let partial_time { .. } = *self;
-                let mut parser = {
-                    {
-                        (
-                            attempt((repeat(2, digit()), char(':'))),
-                            repeat(2, digit()),
-                            char(':'),
-                            repeat(2, digit()),
-                            optional(attempt(char('.')).and(skip_many1(digit()))),
-                        )
-                            .map(|_| ())
-                    }
-                };
-                {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
-                        &mut parser;
-                }
-                parser.add_error(errors)
-            }
-            fn add_consumed_expected_error(
-                &mut self,
-                errors: &mut ::combine::error::Tracked<<I as ::combine::stream::StreamOnce>::Error>,
-            ) {
-                let partial_time { .. } = *self;
-                let mut parser = {
-                    {
-                        (
-                            attempt((repeat(2, digit()), char(':'))),
-                            repeat(2, digit()),
-                            char(':'),
-                            repeat(2, digit()),
-                            optional(attempt(char('.')).and(skip_many1(digit()))),
-                        )
-                            .map(|_| ())
-                    }
-                };
-                {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
-                        &mut parser;
-                }
-                parser.add_consumed_expected_error(errors)
-            }
-        }
-        #[inline]
-        pub fn partial_time<'a, I>() -> partial_time<'a, I>
-        where
-            <I as ::combine::stream::StreamOnce>::Error: ::combine::error::ParseError<
-                <I as ::combine::stream::StreamOnce>::Item,
-                <I as ::combine::stream::StreamOnce>::Range,
-                <I as ::combine::stream::StreamOnce>::Position,
-            >,
-            I: RangeStream<Range = &'a str, Item = char>,
-            I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
-            <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
-                + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
-                + From<crate::parser::errors::CustomError>,
-        {
-            partial_time { __marker: ::combine::lib::marker::PhantomData }
-        }
-        #[allow(non_camel_case_types)]
-        pub struct time_offset<'a, I>
-        where
-            <I as ::combine::stream::StreamOnce>::Error: ::combine::error::ParseError<
-                <I as ::combine::stream::StreamOnce>::Item,
-                <I as ::combine::stream::StreamOnce>::Range,
-                <I as ::combine::stream::StreamOnce>::Position,
-            >,
-            I: RangeStream<Range = &'a str, Item = char>,
-            I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
-            <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
-                + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
-                + From<crate::parser::errors::CustomError>,
-        {
-            __marker: ::combine::lib::marker::PhantomData<fn(I) -> ()>,
-        }
-        #[allow(non_shorthand_field_patterns)]
-        impl<'a, I> ::combine::Parser for time_offset<'a, I>
-        where
-            <I as ::combine::stream::StreamOnce>::Error: ::combine::error::ParseError<
-                <I as ::combine::stream::StreamOnce>::Item,
-                <I as ::combine::stream::StreamOnce>::Range,
-                <I as ::combine::stream::StreamOnce>::Position,
-            >,
-            I: RangeStream<Range = &'a str, Item = char>,
-            I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
-            <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
-                + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
-                + From<crate::parser::errors::CustomError>,
-        {
-            type Input = I;
-            type Output = ();
-            type PartialState = ();
-            #[inline]
-            fn parse_partial(
-                &mut self,
-                input: &mut Self::Input,
-                state: &mut Self::PartialState,
-            ) -> ::combine::error::ConsumedResult<Self::Output, Self::Input> {
-                self.parse_mode(::combine::parser::PartialMode::default(), input, state)
-            }
-            #[inline]
-            fn parse_first(
-                &mut self,
-                input: &mut Self::Input,
-                state: &mut Self::PartialState,
-            ) -> ::combine::error::ConsumedResult<Self::Output, Self::Input> {
-                self.parse_mode(::combine::parser::FirstMode, input, state)
-            }
-            #[inline]
-            fn parse_mode_impl<M>(
-                &mut self,
-                mode: M,
-                input: &mut Self::Input,
-                state: &mut Self::PartialState,
-            ) -> ::combine::error::ConsumedResult<(), I>
-            where
-                M: ::combine::parser::ParseMode,
-            {
-                let time_offset { .. } = *self;
-                {
-                    let _ = state;
-                    let mut state = Default::default();
-                    let state = &mut state;
-                    {
-                        {
-                            attempt(char('Z'))
-                                .map(|_| ())
-                                .or((
-                                    attempt(choice([char('+'), char('-')])),
-                                    repeat(2, digit()),
-                                    char(':'),
-                                    repeat(2, digit()),
-                                )
-                                    .map(|_| ()))
-                                .message("While parsing a Time Offset")
-                        }
-                    }
-                    .parse_mode(mode, input, state)
-                }
-            }
-            #[inline]
-            fn add_error(
-                &mut self,
-                errors: &mut ::combine::error::Tracked<<I as ::combine::stream::StreamOnce>::Error>,
-            ) {
-                let time_offset { .. } = *self;
-                let mut parser = {
-                    {
-                        attempt(char('Z'))
-                            .map(|_| ())
-                            .or((
-                                attempt(choice([char('+'), char('-')])),
-                                repeat(2, digit()),
-                                char(':'),
-                                repeat(2, digit()),
-                            )
-                                .map(|_| ()))
-                            .message("While parsing a Time Offset")
-                    }
-                };
-                {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
-                        &mut parser;
-                }
-                parser.add_error(errors)
-            }
-            fn add_consumed_expected_error(
-                &mut self,
-                errors: &mut ::combine::error::Tracked<<I as ::combine::stream::StreamOnce>::Error>,
-            ) {
-                let time_offset { .. } = *self;
-                let mut parser = {
-                    {
-                        attempt(char('Z'))
-                            .map(|_| ())
-                            .or((
-                                attempt(choice([char('+'), char('-')])),
-                                repeat(2, digit()),
-                                char(':'),
-                                repeat(2, digit()),
-                            )
-                                .map(|_| ()))
-                            .message("While parsing a Time Offset")
-                    }
-                };
-                {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
-                        &mut parser;
-                }
-                parser.add_consumed_expected_error(errors)
-            }
-        }
-        #[inline]
-        pub fn time_offset<'a, I>() -> time_offset<'a, I>
-        where
-            <I as ::combine::stream::StreamOnce>::Error: ::combine::error::ParseError<
-                <I as ::combine::stream::StreamOnce>::Item,
-                <I as ::combine::stream::StreamOnce>::Range,
-                <I as ::combine::stream::StreamOnce>::Position,
-            >,
-            I: RangeStream<Range = &'a str, Item = char>,
-            I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
-            <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
-                + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
-                + From<crate::parser::errors::CustomError>,
-        {
-            time_offset { __marker: ::combine::lib::marker::PhantomData }
         }
     }
     pub(crate) mod document {
@@ -1973,7 +1316,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             pub parser: &'b RefCell<TomlParser>,
@@ -1991,7 +1333,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -2085,7 +1426,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             parse_comment { parser: parser, __marker: ::combine::lib::marker::PhantomData }
@@ -2102,7 +1442,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             pub parser: &'b RefCell<TomlParser>,
@@ -2120,7 +1459,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -2205,7 +1543,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             parse_ws { parser: parser, __marker: ::combine::lib::marker::PhantomData }
@@ -2222,7 +1559,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             pub parser: &'b RefCell<TomlParser>,
@@ -2240,7 +1576,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -2325,7 +1660,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             parse_newline { parser: parser, __marker: ::combine::lib::marker::PhantomData }
@@ -2342,7 +1676,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             pub parser: &'b RefCell<TomlParser>,
@@ -2360,7 +1693,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -2455,7 +1787,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             keyval { parser: parser, __marker: ::combine::lib::marker::PhantomData }
@@ -2472,7 +1803,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> (String, TableKeyValue)>,
@@ -2489,7 +1819,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -2619,7 +1948,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             parse_keyval { __marker: ::combine::lib::marker::PhantomData }
@@ -2801,7 +2129,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> InlineTable>,
@@ -2818,7 +2145,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -2927,7 +2253,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             inline_table { __marker: ::combine::lib::marker::PhantomData }
@@ -2962,7 +2287,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<
@@ -2981,7 +2305,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -3072,7 +2395,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             inline_table_keyvals { __marker: ::combine::lib::marker::PhantomData }
@@ -3089,7 +2411,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> (String, TableKeyValue)>,
@@ -3106,7 +2427,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -3241,7 +2561,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             keyval { __marker: ::combine::lib::marker::PhantomData }
@@ -3273,7 +2592,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> &'a str>,
@@ -3290,7 +2608,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -3378,7 +2695,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             unquoted_key { __marker: ::combine::lib::marker::PhantomData }
@@ -3395,7 +2711,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> (&'a str, String)>,
@@ -3412,7 +2727,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -3521,7 +2835,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             key { __marker: ::combine::lib::marker::PhantomData }
@@ -3546,7 +2859,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> bool>,
@@ -3563,7 +2875,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -3657,7 +2968,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             boolean { __marker: ::combine::lib::marker::PhantomData }
@@ -3674,7 +2984,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> &'a str>,
@@ -3691,7 +3000,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -3812,7 +3120,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             parse_integer { __marker: ::combine::lib::marker::PhantomData }
@@ -3829,7 +3136,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> i64>,
@@ -3846,7 +3152,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -3951,7 +3256,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             integer { __marker: ::combine::lib::marker::PhantomData }
@@ -3968,7 +3272,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> i64>,
@@ -3985,7 +3288,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -4103,7 +3405,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             parse_hex_integer { __marker: ::combine::lib::marker::PhantomData }
@@ -4120,7 +3421,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> i64>,
@@ -4137,7 +3437,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -4255,7 +3554,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             parse_octal_integer { __marker: ::combine::lib::marker::PhantomData }
@@ -4272,7 +3570,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> i64>,
@@ -4289,7 +3586,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -4416,7 +3712,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             parse_binary_integer { __marker: ::combine::lib::marker::PhantomData }
@@ -4433,7 +3728,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> &'a str>,
@@ -4450,7 +3744,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -4553,7 +3846,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             frac { __marker: ::combine::lib::marker::PhantomData }
@@ -4570,7 +3862,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> &'a str>,
@@ -4587,7 +3878,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -4672,7 +3962,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             exp { __marker: ::combine::lib::marker::PhantomData }
@@ -4689,7 +3978,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> &'a str>,
@@ -4706,7 +3994,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -4806,7 +4093,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             parse_float { __marker: ::combine::lib::marker::PhantomData }
@@ -4823,7 +4109,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> f64>,
@@ -4840,7 +4125,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -4937,7 +4221,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             float { __marker: ::combine::lib::marker::PhantomData }
@@ -4968,7 +4251,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> String>,
@@ -4985,7 +4267,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -5091,7 +4372,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             string { __marker: ::combine::lib::marker::PhantomData }
@@ -5122,7 +4402,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> char>,
@@ -5139,7 +4418,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -5265,7 +4543,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             escape { __marker: ::combine::lib::marker::PhantomData }
@@ -5282,7 +4559,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             pub n: usize,
@@ -5300,7 +4576,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -5397,7 +4672,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             hexescape { n: n, __marker: ::combine::lib::marker::PhantomData }
@@ -5415,7 +4689,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> char>,
@@ -5432,7 +4705,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -5538,7 +4810,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             basic_char { __marker: ::combine::lib::marker::PhantomData }
@@ -5556,7 +4827,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> String>,
@@ -5573,7 +4843,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -5667,7 +4936,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             basic_string { __marker: ::combine::lib::marker::PhantomData }
@@ -5692,7 +4960,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> char>,
@@ -5709,7 +4976,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -5815,7 +5081,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             ml_basic_char { __marker: ::combine::lib::marker::PhantomData }
@@ -5832,7 +5097,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> ()>,
@@ -5849,7 +5113,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -5934,7 +5197,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             try_eat_escaped_newline { __marker: ::combine::lib::marker::PhantomData }
@@ -5951,7 +5213,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> String>,
@@ -5968,7 +5229,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -6071,7 +5331,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             ml_basic_body { __marker: ::combine::lib::marker::PhantomData }
@@ -6088,7 +5347,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> String>,
@@ -6105,7 +5363,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -6211,7 +5468,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             ml_basic_string { __marker: ::combine::lib::marker::PhantomData }
@@ -6236,7 +5492,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> &'a str>,
@@ -6253,7 +5508,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -6347,7 +5601,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             literal_string { __marker: ::combine::lib::marker::PhantomData }
@@ -6372,7 +5625,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> String>,
@@ -6389,7 +5641,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -6489,7 +5740,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             ml_literal_body { __marker: ::combine::lib::marker::PhantomData }
@@ -6506,7 +5756,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> String>,
@@ -6523,7 +5772,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -6632,7 +5880,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             ml_literal_string { __marker: ::combine::lib::marker::PhantomData }
@@ -6672,7 +5919,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> Vec<Key>>,
@@ -6689,7 +5935,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -6792,7 +6037,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             key_path { __marker: ::combine::lib::marker::PhantomData }
@@ -6809,7 +6053,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             pub parser: &'b RefCell<TomlParser>,
@@ -6827,7 +6070,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -6932,7 +6174,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             std_table { parser: parser, __marker: ::combine::lib::marker::PhantomData }
@@ -6949,7 +6190,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             pub parser: &'b RefCell<TomlParser>,
@@ -6967,7 +6207,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -7080,7 +6319,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             array_table { parser, __marker: ::combine::lib::marker::PhantomData }
@@ -7097,7 +6335,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             pub parser: &'b RefCell<TomlParser>,
@@ -7115,7 +6352,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -7206,7 +6442,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             table { parser, __marker: ::combine::lib::marker::PhantomData }
@@ -7341,7 +6576,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> &'a str>,
@@ -7358,7 +6592,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -7443,7 +6676,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             ws { __marker: ::combine::lib::marker::PhantomData }
@@ -7468,7 +6700,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> &'a str>,
@@ -7485,7 +6716,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -7570,7 +6800,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             comment { __marker: ::combine::lib::marker::PhantomData }
@@ -7587,7 +6816,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> char>,
@@ -7604,7 +6832,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -7689,7 +6916,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             newline { __marker: ::combine::lib::marker::PhantomData }
@@ -7706,7 +6932,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> &'a str>,
@@ -7723,7 +6948,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -7826,7 +7050,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             ws_newline { __marker: ::combine::lib::marker::PhantomData }
@@ -7843,7 +7066,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> &'a str>,
@@ -7860,7 +7082,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -7945,7 +7166,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             ws_newlines { __marker: ::combine::lib::marker::PhantomData }
@@ -7962,7 +7182,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> &'a str>,
@@ -7979,7 +7198,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -8082,7 +7300,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             ws_comment_newline { __marker: ::combine::lib::marker::PhantomData }
@@ -8099,7 +7316,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> &'a str>,
@@ -8116,7 +7332,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -8201,7 +7416,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             line_ending { __marker: ::combine::lib::marker::PhantomData }
@@ -8218,7 +7432,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> &'a str>,
@@ -8235,7 +7448,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -8320,7 +7532,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             line_trailing { __marker: ::combine::lib::marker::PhantomData }
@@ -8332,7 +7543,6 @@ pub(crate) mod parser {
             formatted,
             parser::{
                 array::array,
-                datetime::date_time,
                 inline_table::inline_table,
                 numbers::{boolean, float, integer},
                 strings::string,
@@ -8352,7 +7562,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             __marker: ::combine::lib::marker::PhantomData<fn(I) -> v::Value>,
@@ -8369,7 +7578,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             type Input = I;
@@ -8422,7 +7630,6 @@ pub(crate) mod parser {
                                 boolean().map(v::Value::from),
                                 array().map(v::Value::Array),
                                 inline_table().map(v::Value::InlineTable),
-                                date_time().map(v::Value::from),
                                 float().map(v::Value::from),
                                 integer().map(v::Value::from),
                             )))
@@ -8450,7 +7657,6 @@ pub(crate) mod parser {
                             boolean().map(v::Value::from),
                             array().map(v::Value::Array),
                             inline_table().map(v::Value::InlineTable),
-                            date_time().map(v::Value::from),
                             float().map(v::Value::from),
                             integer().map(v::Value::from),
                         )))
@@ -8480,7 +7686,6 @@ pub(crate) mod parser {
                             boolean().map(v::Value::from),
                             array().map(v::Value::Array),
                             inline_table().map(v::Value::InlineTable),
-                            date_time().map(v::Value::from),
                             float().map(v::Value::from),
                             integer().map(v::Value::from),
                         )))
@@ -8506,7 +7711,6 @@ pub(crate) mod parser {
             I::Error: ParseError<char, &'a str, <I as StreamOnce>::Position>,
             <I::Error as ParseError<char, &'a str, <I as StreamOnce>::Position>>::StreamError: From<std::num::ParseIntError>
                 + From<std::num::ParseFloatError>
-                + From<chrono::ParseError>
                 + From<crate::parser::errors::CustomError>,
         {
             value { __marker: ::combine::lib::marker::PhantomData }
@@ -8536,7 +7740,7 @@ pub(crate) mod table {
         decor::{Decor, Repr},
         formatted::{decorated, key_repr},
         key::Key,
-        value::{sort_key_value_pairs, Array, DateTime, InlineTable, Value},
+        value::{sort_key_value_pairs, Array, InlineTable, Value},
     };
     use linked_hash_map::LinkedHashMap;
     /// Type representing a TOML non-inline table
@@ -8783,14 +7987,6 @@ pub(crate) mod table {
         pub fn is_str(&self) -> bool {
             self.as_str().is_some()
         }
-        /// Casts `self` to date-time.
-        pub fn as_date_time(&self) -> Option<&DateTime> {
-            self.as_value().and_then(Value::as_date_time)
-        }
-        /// Returns true iff `self` is a date-time.
-        pub fn is_date_time(&self) -> bool {
-            self.as_date_time().is_some()
-        }
         /// Casts `self` to array.
         pub fn as_array(&self) -> Option<&Array> {
             self.as_value().and_then(Value::as_array)
@@ -8897,7 +8093,6 @@ pub(crate) mod value {
         parser,
         table::{Item, Iter, KeyValuePairs, TableKeyValue, TableLike},
     };
-    use chrono::{self, FixedOffset};
     use combine::stream::state::State;
     use linked_hash_map::LinkedHashMap;
     use std::{mem, str::FromStr};
@@ -8910,27 +8105,12 @@ pub(crate) mod value {
         String(Formatted<String>),
         /// A 64-bit float value.
         Float(Formatted<f64>),
-        /// A Date-Time value.
-        DateTime(Formatted<DateTime>),
         /// A boolean value.
         Boolean(Formatted<bool>),
         /// An inline array of values.
         Array(Array),
         /// An inline table of key/value pairs.
         InlineTable(InlineTable),
-    }
-    /// Type representing a TOML Date-Time,
-    /// payload of the `Value::DateTime` variant's value
-    #[derive(Eq, PartialEq, Clone, Debug, Hash)]
-    pub enum DateTime {
-        /// An RFC 3339 formatted date-time with offset.
-        OffsetDateTime(chrono::DateTime<FixedOffset>),
-        /// An RFC 3339 formatted date-time without offset.
-        LocalDateTime(chrono::NaiveDateTime),
-        /// Date portion of an RFC 3339 formatted date-time.
-        LocalDate(chrono::NaiveDate),
-        /// Time portion of an RFC 3339 formatted date-time.
-        LocalTime(chrono::NaiveTime),
     }
     /// Type representing a TOML array,
     /// payload of the `Value::Array` variant's value
@@ -8955,7 +8135,7 @@ pub(crate) mod value {
         Integer,
         String,
         Float,
-        DateTime,
+
         Boolean,
         Array,
         InlineTable,
@@ -9094,53 +8274,6 @@ pub(crate) mod value {
         }
     }
     /// Downcasting
-    impl DateTime {
-        /// Casts `self` to offset date-time.
-        pub fn as_offset_date_time(&self) -> Option<&chrono::DateTime<FixedOffset>> {
-            match *self {
-                DateTime::OffsetDateTime(ref dt) => Some(dt),
-                _ => None,
-            }
-        }
-        /// Casts `self` to local date-time.
-        pub fn as_local_date_time(&self) -> Option<&chrono::NaiveDateTime> {
-            match *self {
-                DateTime::LocalDateTime(ref dt) => Some(dt),
-                _ => None,
-            }
-        }
-        /// Casts `self` to local date.
-        pub fn as_local_date(&self) -> Option<&chrono::NaiveDate> {
-            match *self {
-                DateTime::LocalDate(ref d) => Some(d),
-                _ => None,
-            }
-        }
-        /// Casts `self` to local time.
-        pub fn as_local_time(&self) -> Option<&chrono::NaiveTime> {
-            match *self {
-                DateTime::LocalTime(ref t) => Some(t),
-                _ => None,
-            }
-        }
-        /// Returns true iff `self` is an offset date-time.
-        pub fn is_offset_date_time(&self) -> bool {
-            self.as_offset_date_time().is_some()
-        }
-        /// Returns true iff `self` is a local date-time.
-        pub fn is_local_date_time(&self) -> bool {
-            self.as_local_date_time().is_some()
-        }
-        /// Returns true iff `self` is a local date.
-        pub fn is_local_date(&self) -> bool {
-            self.as_local_date().is_some()
-        }
-        /// Returns true iff `self` is a local time.
-        pub fn is_local_time(&self) -> bool {
-            self.as_local_time().is_some()
-        }
-    }
-    /// Downcasting
     impl Value {
         /// Casts `self` to integer.
         pub fn as_integer(&self) -> Option<i64> {
@@ -9186,17 +8319,6 @@ pub(crate) mod value {
         pub fn is_str(&self) -> bool {
             self.as_str().is_some()
         }
-        /// Casts `self` to date-time.
-        pub fn as_date_time(&self) -> Option<&DateTime> {
-            match *self {
-                Value::DateTime(ref value) => Some(value.value()),
-                _ => None,
-            }
-        }
-        /// Returns true iff `self` is a date-time.
-        pub fn is_date_time(&self) -> bool {
-            self.as_date_time().is_some()
-        }
         /// Casts `self` to array.
         pub fn as_array(&self) -> Option<&Array> {
             match *self {
@@ -9238,7 +8360,6 @@ pub(crate) mod value {
                 Value::Integer(..) => ValueType::Integer,
                 Value::String(..) => ValueType::String,
                 Value::Float(..) => ValueType::Float,
-                Value::DateTime(..) => ValueType::DateTime,
                 Value::Boolean(..) => ValueType::Boolean,
                 Value::Array(..) => ValueType::Array,
                 Value::InlineTable(..) => ValueType::InlineTable,
@@ -9257,7 +8378,6 @@ pub(crate) mod value {
                 Value::Integer(ref f) => &f.repr.decor,
                 Value::String(ref f) => &f.repr.decor,
                 Value::Float(ref f) => &f.repr.decor,
-                Value::DateTime(ref f) => &f.repr.decor,
                 Value::Boolean(ref f) => &f.repr.decor,
                 Value::Array(ref a) => &a.decor,
                 Value::InlineTable(ref t) => &t.decor,
