@@ -1,6 +1,5 @@
 #![deny(missing_docs)]
 #![allow(
-    rust_2018_idioms,
     single_use_lifetimes,
     dead_code,
     unreachable_pub,
@@ -1130,11 +1129,11 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<
+                    let _: &mut dyn (::combine::Parser<
                         Input = I,
                         Output = (Vec<Value>, bool, &'a str),
                         PartialState = _,
-                    > = &mut parser;
+                    >) = &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
             }
@@ -1241,7 +1240,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = Value, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = Value, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -1258,7 +1257,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = Value, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = Value, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -1391,7 +1390,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -1408,7 +1407,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -1428,7 +1427,7 @@ pub(crate) mod parser {
                 + From<std::num::ParseFloatError>
                 + From<crate::parser::errors::CustomError>,
         {
-            parse_comment { parser: parser, __marker: ::combine::lib::marker::PhantomData }
+            parse_comment { parser, __marker: ::combine::lib::marker::PhantomData }
         }
         #[allow(non_camel_case_types)]
         struct parse_ws<'a, 'b, I>
@@ -1511,7 +1510,7 @@ pub(crate) mod parser {
                     { ws().map(|w| parser.borrow_mut().deref_mut().on_ws(w)) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -1525,7 +1524,7 @@ pub(crate) mod parser {
                     { ws().map(|w| parser.borrow_mut().deref_mut().on_ws(w)) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -1545,7 +1544,7 @@ pub(crate) mod parser {
                 + From<std::num::ParseFloatError>
                 + From<crate::parser::errors::CustomError>,
         {
-            parse_ws { parser: parser, __marker: ::combine::lib::marker::PhantomData }
+            parse_ws { parser, __marker: ::combine::lib::marker::PhantomData }
         }
         #[allow(non_camel_case_types)]
         struct parse_newline<'a, 'b, I>
@@ -1628,7 +1627,7 @@ pub(crate) mod parser {
                     { recognize(newline()).map(|w| parser.borrow_mut().deref_mut().on_ws(w)) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -1642,7 +1641,7 @@ pub(crate) mod parser {
                     { recognize(newline()).map(|w| parser.borrow_mut().deref_mut().on_ws(w)) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -1662,7 +1661,7 @@ pub(crate) mod parser {
                 + From<std::num::ParseFloatError>
                 + From<crate::parser::errors::CustomError>,
         {
-            parse_newline { parser: parser, __marker: ::combine::lib::marker::PhantomData }
+            parse_newline { parser, __marker: ::combine::lib::marker::PhantomData }
         }
         #[allow(non_camel_case_types)]
         struct keyval<'a, 'b, I>
@@ -1752,7 +1751,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -1769,7 +1768,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -1789,7 +1788,7 @@ pub(crate) mod parser {
                 + From<std::num::ParseFloatError>
                 + From<crate::parser::errors::CustomError>,
         {
-            keyval { parser: parser, __marker: ::combine::lib::marker::PhantomData }
+            keyval { parser, __marker: ::combine::lib::marker::PhantomData }
         }
         #[allow(non_camel_case_types)]
         struct parse_keyval<'a, I>
@@ -1897,11 +1896,11 @@ pub(crate) mod parser {
                     )
                 };
                 {
-                    let _: &mut ::combine::Parser<
+                    let _: &mut dyn (::combine::Parser<
                         Input = I,
                         Output = (String, TableKeyValue),
                         PartialState = _,
-                    > = &mut parser;
+                    >) = &mut parser;
                 }
                 parser.add_error(errors)
             }
@@ -1927,11 +1926,11 @@ pub(crate) mod parser {
                     )
                 };
                 {
-                    let _: &mut ::combine::Parser<
+                    let _: &mut dyn (::combine::Parser<
                         Input = I,
                         Output = (String, TableKeyValue),
                         PartialState = _,
-                    > = &mut parser;
+                    >) = &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
             }
@@ -2209,11 +2208,11 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<
+                    let _: &mut dyn (::combine::Parser<
                         Input = I,
                         Output = InlineTable,
                         PartialState = _,
-                    > = &mut parser;
+                    >) = &mut parser;
                 }
                 parser.add_error(errors)
             }
@@ -2232,11 +2231,11 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<
+                    let _: &mut dyn (::combine::Parser<
                         Input = I,
                         Output = InlineTable,
                         PartialState = _,
-                    > = &mut parser;
+                    >) = &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
             }
@@ -2357,11 +2356,11 @@ pub(crate) mod parser {
                     { (sep_by(keyval(), char(INLINE_TABLE_SEP)), ws()).map(|(v, w)| (w, v)) }
                 };
                 {
-                    let _: &mut ::combine::Parser<
+                    let _: &mut dyn (::combine::Parser<
                         Input = I,
                         Output = (&'a str, Vec<(String, TableKeyValue)>),
                         PartialState = _,
-                    > = &mut parser;
+                    >) = &mut parser;
                 }
                 parser.add_error(errors)
             }
@@ -2374,11 +2373,11 @@ pub(crate) mod parser {
                     { (sep_by(keyval(), char(INLINE_TABLE_SEP)), ws()).map(|(v, w)| (w, v)) }
                 };
                 {
-                    let _: &mut ::combine::Parser<
+                    let _: &mut dyn (::combine::Parser<
                         Input = I,
                         Output = (&'a str, Vec<(String, TableKeyValue)>),
                         PartialState = _,
-                    > = &mut parser;
+                    >) = &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
             }
@@ -2508,11 +2507,11 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<
+                    let _: &mut dyn (::combine::Parser<
                         Input = I,
                         Output = (String, TableKeyValue),
                         PartialState = _,
-                    > = &mut parser;
+                    >) = &mut parser;
                 }
                 parser.add_error(errors)
             }
@@ -2540,11 +2539,11 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<
+                    let _: &mut dyn (::combine::Parser<
                         Input = I,
                         Output = (String, TableKeyValue),
                         PartialState = _,
-                    > = &mut parser;
+                    >) = &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
             }
@@ -2677,7 +2676,7 @@ pub(crate) mod parser {
                     { take_while1(is_unquoted_char) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -2791,11 +2790,11 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<
+                    let _: &mut dyn (::combine::Parser<
                         Input = I,
                         Output = (&'a str, String),
                         PartialState = _,
-                    > = &mut parser;
+                    >) = &mut parser;
                 }
                 parser.add_error(errors)
             }
@@ -2814,11 +2813,11 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<
+                    let _: &mut dyn (::combine::Parser<
                         Input = I,
                         Output = (&'a str, String),
                         PartialState = _,
-                    > = &mut parser;
+                    >) = &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
             }
@@ -2933,7 +2932,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = bool, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = bool, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -2950,7 +2949,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = bool, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = bool, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -3076,7 +3075,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -3102,7 +3101,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -3217,7 +3216,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = i64, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = i64, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -3238,7 +3237,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = i64, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = i64, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -3362,7 +3361,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = i64, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = i64, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -3387,7 +3386,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = i64, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = i64, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -3511,7 +3510,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = i64, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = i64, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -3536,7 +3535,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = i64, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = i64, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -3666,7 +3665,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = i64, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = i64, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -3694,7 +3693,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = i64, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = i64, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -3808,7 +3807,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -3828,7 +3827,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -3930,7 +3929,7 @@ pub(crate) mod parser {
                     { recognize((one_of("eE".chars()), parse_integer())) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -3944,7 +3943,7 @@ pub(crate) mod parser {
                     { recognize((one_of("eE".chars()), parse_integer())) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -4056,7 +4055,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -4075,7 +4074,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -4185,7 +4184,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = f64, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = f64, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -4203,7 +4202,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = f64, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = f64, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -4333,7 +4332,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = String, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = String, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -4354,7 +4353,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = String, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = String, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -4498,7 +4497,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = char, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = char, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -4525,7 +4524,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = char, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = char, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -4636,7 +4635,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = char, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = char, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -4654,7 +4653,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = char, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = char, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -4771,7 +4770,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = char, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = char, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -4792,7 +4791,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = char, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = char, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -4901,7 +4900,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = String, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = String, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -4918,7 +4917,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = String, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = String, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -5042,7 +5041,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = char, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = char, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -5063,7 +5062,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = char, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = char, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -5165,7 +5164,7 @@ pub(crate) mod parser {
                     { skip_many(attempt((char(ESCAPE), ws(), ws_newlines()))) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -5179,7 +5178,7 @@ pub(crate) mod parser {
                     { skip_many(attempt((char(ESCAPE), ws(), ws_newlines()))) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -5293,7 +5292,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = String, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = String, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -5313,7 +5312,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = String, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = String, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -5429,7 +5428,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = String, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = String, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -5450,7 +5449,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = String, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = String, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -5566,7 +5565,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -5583,7 +5582,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -5703,7 +5702,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = String, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = String, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -5722,7 +5721,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = String, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = String, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -5862,7 +5861,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = String, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = String, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -6019,7 +6018,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = Vec<Key>, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = Vec<Key>, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -6136,7 +6135,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -6156,7 +6155,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -6176,7 +6175,7 @@ pub(crate) mod parser {
                 + From<std::num::ParseFloatError>
                 + From<crate::parser::errors::CustomError>,
         {
-            std_table { parser: parser, __marker: ::combine::lib::marker::PhantomData }
+            std_table { parser, __marker: ::combine::lib::marker::PhantomData }
         }
         #[allow(non_camel_case_types)]
         struct array_table<'a, 'b, I>
@@ -6301,7 +6300,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -6408,7 +6407,7 @@ pub(crate) mod parser {
                         .message("While parsing a Table Header")
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -6424,7 +6423,7 @@ pub(crate) mod parser {
                         .message("While parsing a Table Header")
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = (), PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = (), PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -6644,7 +6643,7 @@ pub(crate) mod parser {
                     { take_while(is_wschar) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -6658,7 +6657,7 @@ pub(crate) mod parser {
                     { take_while(is_wschar) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -6768,7 +6767,7 @@ pub(crate) mod parser {
                     { recognize((attempt(char(COMMENT_START_SYMBOL)), take_while(is_non_eol))) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -6782,7 +6781,7 @@ pub(crate) mod parser {
                     { recognize((attempt(char(COMMENT_START_SYMBOL)), take_while(is_non_eol))) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -6884,7 +6883,7 @@ pub(crate) mod parser {
                     { choice((lf(), crlf())).map(|_| '\n').expected("a newline") }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = char, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = char, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -6898,7 +6897,7 @@ pub(crate) mod parser {
                     { choice((lf(), crlf())).map(|_| '\n').expected("a newline") }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = char, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = char, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -7032,7 +7031,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -7134,7 +7133,7 @@ pub(crate) mod parser {
                     { recognize((newline(), ws_newline())) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -7148,7 +7147,7 @@ pub(crate) mod parser {
                     { recognize((newline(), ws_newline())) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -7263,7 +7262,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -7282,7 +7281,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -7384,7 +7383,7 @@ pub(crate) mod parser {
                     { choice((newline().map(|_| "\n"), eof().map(|_| ""))) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -7398,7 +7397,7 @@ pub(crate) mod parser {
                     { choice((newline().map(|_| "\n"), eof().map(|_| ""))) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -7500,7 +7499,7 @@ pub(crate) mod parser {
                     { recognize((ws(), optional(comment()))).skip(line_ending()) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -7514,7 +7513,7 @@ pub(crate) mod parser {
                     { recognize((ws(), optional(comment()))).skip(line_ending()) }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = &'a str, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = &'a str, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -7664,7 +7663,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = v::Value, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = v::Value, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_error(errors)
@@ -7693,7 +7692,7 @@ pub(crate) mod parser {
                     }
                 };
                 {
-                    let _: &mut ::combine::Parser<Input = I, Output = v::Value, PartialState = _> =
+                    let _: &mut dyn (::combine::Parser<Input = I, Output = v::Value, PartialState = _>) =
                         &mut parser;
                 }
                 parser.add_consumed_expected_error(errors)
@@ -8025,7 +8024,7 @@ pub(crate) mod table {
     /// This trait represents either a `Table`, or an `InlineTable`.
     pub trait TableLike {
         /// Returns an iterator over key/value pairs.
-        fn iter(&self) -> Iter;
+        fn iter(&self) -> Iter<'_>;
         /// Returns the number of nonempty items.
         fn len(&self) -> usize {
             self.iter().filter(|&(_, v)| !v.is_none()).count()
@@ -8039,7 +8038,7 @@ pub(crate) mod table {
     }
     impl TableLike for Table {
         /// Returns an iterator over all subitems, including `Item::None`.
-        fn iter(&self) -> Iter {
+        fn iter(&self) -> Iter<'_> {
             self.iter()
         }
         fn get<'s>(&'s self, key: &str) -> Option<&'s Item> {
