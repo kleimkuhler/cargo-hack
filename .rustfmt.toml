@@ -10,7 +10,8 @@ use_small_heuristics = "Max"
 
 # Apply rustfmt to more places.
 merge_imports = true # Tracking issue: https://github.com/rust-lang/rustfmt/issues/3362
-format_code_in_doc_comments = true # Tracking issue: https://github.com/rust-lang/rustfmt/issues/3348
+# Currently disabled due to a bug with field doc_comments.
+# format_code_in_doc_comments = true # Tracking issue: https://github.com/rust-lang/rustfmt/issues/3348
 
 # Set the default settings again to always apply the proper formatting without
 # being affected by the editor settings.
