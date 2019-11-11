@@ -9,7 +9,7 @@ use std::{
 };
 
 use anyhow::{Context, Result};
-use serde::Deserialize;
+// use serde::Deserialize;
 
 use crate::Args;
 
@@ -18,7 +18,8 @@ use crate::Args;
 // * https://github.com/rust-lang/cargo/blob/0.40.0/src/cargo/core/package.rs#L57-L80
 // * https://github.com/oli-obk/cargo_metadata
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
+// #[derive(Debug, Deserialize)]
 pub(crate) struct Metadata {
     /// A list of all crates referenced by this crate (and the crate itself)
     pub(crate) packages: Vec<Package>,
@@ -33,7 +34,8 @@ pub(crate) struct Metadata {
     pub(crate) workspace_root: PathBuf,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
+// #[derive(Debug, Deserialize)]
 pub(crate) struct Package {
     /// Name as given in the `Cargo.toml`
     pub(crate) name: String,

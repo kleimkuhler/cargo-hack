@@ -8,6 +8,9 @@ mod term;
 mod cargo;
 mod cli;
 mod process;
+// mod toml_tokenizer;
+mod toml_edit;
+use toml_edit::*;
 
 use std::{env, ffi::OsString, fs, path::Path};
 
