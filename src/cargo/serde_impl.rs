@@ -82,11 +82,7 @@ mod metadata {
                     __A: _serde::de::SeqAccess<'de>,
                 {
                     let __field0 =
-                        match match _serde::de::SeqAccess::next_element::<Vec<Package>>(&mut __seq)
-                        {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
+                        match _serde::de::SeqAccess::next_element::<Vec<Package>>(&mut __seq)? {
                             Some(__value) => __value,
                             None => {
                                 return Err(_serde::de::Error::invalid_length(
@@ -95,32 +91,26 @@ mod metadata {
                                 ));
                             }
                         };
-                    let __field1 =
-                        match match _serde::de::SeqAccess::next_element::<PathBuf>(&mut __seq) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
-                            Some(__value) => __value,
-                            None => {
-                                return Err(_serde::de::Error::invalid_length(
-                                    1usize,
-                                    &"struct Metadata with 3 elements",
-                                ));
-                            }
-                        };
-                    let __field2 =
-                        match match _serde::de::SeqAccess::next_element::<PathBuf>(&mut __seq) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
-                            Some(__value) => __value,
-                            None => {
-                                return Err(_serde::de::Error::invalid_length(
-                                    2usize,
-                                    &"struct Metadata with 3 elements",
-                                ));
-                            }
-                        };
+                    let __field1 = match _serde::de::SeqAccess::next_element::<PathBuf>(&mut __seq)?
+                    {
+                        Some(__value) => __value,
+                        None => {
+                            return Err(_serde::de::Error::invalid_length(
+                                1usize,
+                                &"struct Metadata with 3 elements",
+                            ));
+                        }
+                    };
+                    let __field2 = match _serde::de::SeqAccess::next_element::<PathBuf>(&mut __seq)?
+                    {
+                        Some(__value) => __value,
+                        None => {
+                            return Err(_serde::de::Error::invalid_length(
+                                2usize,
+                                &"struct Metadata with 3 elements",
+                            ));
+                        }
+                    };
                     Ok(Metadata {
                         packages: __field0,
                         target_directory: __field1,
@@ -135,11 +125,7 @@ mod metadata {
                     let mut __field0: Option<Vec<Package>> = None;
                     let mut __field1: Option<PathBuf> = None;
                     let mut __field2: Option<PathBuf> = None;
-                    while let Some(__key) =
-                        match _serde::de::MapAccess::next_key::<__Field>(&mut __map) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        }
+                    while let Some(__key) = _serde::de::MapAccess::next_key::<__Field>(&mut __map)?
                     {
                         match __key {
                             __Field::__field0 => {
@@ -150,14 +136,9 @@ mod metadata {
                                         ),
                                     );
                                 }
-                                __field0 = Some(
-                                    match _serde::de::MapAccess::next_value::<Vec<Package>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field0 = Some(_serde::de::MapAccess::next_value::<Vec<Package>>(
+                                    &mut __map,
+                                )?);
                             }
                             __Field::__field1 => {
                                 if Option::is_some(&__field1) {
@@ -167,12 +148,8 @@ mod metadata {
                                         ),
                                     );
                                 }
-                                __field1 = Some(
-                                    match _serde::de::MapAccess::next_value::<PathBuf>(&mut __map) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field1 =
+                                    Some(_serde::de::MapAccess::next_value::<PathBuf>(&mut __map)?);
                             }
                             __Field::__field2 => {
                                 if Option::is_some(&__field2) {
@@ -182,44 +159,27 @@ mod metadata {
                                         ),
                                     );
                                 }
-                                __field2 = Some(
-                                    match _serde::de::MapAccess::next_value::<PathBuf>(&mut __map) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field2 =
+                                    Some(_serde::de::MapAccess::next_value::<PathBuf>(&mut __map)?);
                             }
                             _ => {
-                                let _ = match _serde::de::MapAccess::next_value::<
-                                    _serde::de::IgnoredAny,
-                                >(&mut __map)
-                                {
-                                    Ok(__val) => __val,
-                                    Err(__err) => return Err(__err),
-                                };
+                                let _ = _serde::de::MapAccess::next_value::<_serde::de::IgnoredAny>(
+                                    &mut __map,
+                                )?;
                             }
                         }
                     }
                     let __field0 = match __field0 {
                         Some(__field0) => __field0,
-                        None => match _serde::private::de::missing_field("packages") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("packages")?,
                     };
                     let __field1 = match __field1 {
                         Some(__field1) => __field1,
-                        None => match _serde::private::de::missing_field("target_directory") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("target_directory")?,
                     };
                     let __field2 = match __field2 {
                         Some(__field2) => __field2,
-                        None => match _serde::private::de::missing_field("workspace_root") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("workspace_root")?,
                     };
                     Ok(Metadata {
                         packages: __field0,
@@ -315,26 +275,20 @@ mod metadata {
                 where
                     __A: _serde::de::SeqAccess<'de>,
                 {
-                    let __field0 =
-                        match match _serde::de::SeqAccess::next_element::<String>(&mut __seq) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
-                            Some(__value) => __value,
-                            None => {
-                                return Err(_serde::de::Error::invalid_length(
-                                    0usize,
-                                    &"struct Package with 3 elements",
-                                ));
-                            }
-                        };
-                    let __field1 = match match _serde::de::SeqAccess::next_element::<
-                        BTreeMap<String, Vec<String>>,
-                    >(&mut __seq)
+                    let __field0 = match _serde::de::SeqAccess::next_element::<String>(&mut __seq)?
                     {
-                        Ok(__val) => __val,
-                        Err(__err) => return Err(__err),
-                    } {
+                        Some(__value) => __value,
+                        None => {
+                            return Err(_serde::de::Error::invalid_length(
+                                0usize,
+                                &"struct Package with 3 elements",
+                            ));
+                        }
+                    };
+                    let __field1 = match _serde::de::SeqAccess::next_element::<
+                        BTreeMap<String, Vec<String>>,
+                    >(&mut __seq)?
+                    {
                         Some(__value) => __value,
                         None => {
                             return Err(_serde::de::Error::invalid_length(
@@ -343,19 +297,16 @@ mod metadata {
                             ));
                         }
                     };
-                    let __field2 =
-                        match match _serde::de::SeqAccess::next_element::<PathBuf>(&mut __seq) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
-                            Some(__value) => __value,
-                            None => {
-                                return Err(_serde::de::Error::invalid_length(
-                                    2usize,
-                                    &"struct Package with 3 elements",
-                                ));
-                            }
-                        };
+                    let __field2 = match _serde::de::SeqAccess::next_element::<PathBuf>(&mut __seq)?
+                    {
+                        Some(__value) => __value,
+                        None => {
+                            return Err(_serde::de::Error::invalid_length(
+                                2usize,
+                                &"struct Package with 3 elements",
+                            ));
+                        }
+                    };
                     Ok(Package { name: __field0, features: __field1, manifest_path: __field2 })
                 }
                 #[inline]
@@ -366,11 +317,7 @@ mod metadata {
                     let mut __field0: Option<String> = None;
                     let mut __field1: Option<BTreeMap<String, Vec<String>>> = None;
                     let mut __field2: Option<PathBuf> = None;
-                    while let Some(__key) =
-                        match _serde::de::MapAccess::next_key::<__Field>(&mut __map) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        }
+                    while let Some(__key) = _serde::de::MapAccess::next_key::<__Field>(&mut __map)?
                     {
                         match __key {
                             __Field::__field0 => {
@@ -379,12 +326,8 @@ mod metadata {
                                         <__A::Error as _serde::de::Error>::duplicate_field("name"),
                                     );
                                 }
-                                __field0 = Some(
-                                    match _serde::de::MapAccess::next_value::<String>(&mut __map) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field0 =
+                                    Some(_serde::de::MapAccess::next_value::<String>(&mut __map)?);
                             }
                             __Field::__field1 => {
                                 if Option::is_some(&__field1) {
@@ -394,15 +337,9 @@ mod metadata {
                                         ),
                                     );
                                 }
-                                __field1 = Some(
-                                    match _serde::de::MapAccess::next_value::<
-                                        BTreeMap<String, Vec<String>>,
-                                    >(&mut __map)
-                                    {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field1 = Some(_serde::de::MapAccess::next_value::<
+                                    BTreeMap<String, Vec<String>>,
+                                >(&mut __map)?);
                             }
                             __Field::__field2 => {
                                 if Option::is_some(&__field2) {
@@ -412,44 +349,27 @@ mod metadata {
                                         ),
                                     );
                                 }
-                                __field2 = Some(
-                                    match _serde::de::MapAccess::next_value::<PathBuf>(&mut __map) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field2 =
+                                    Some(_serde::de::MapAccess::next_value::<PathBuf>(&mut __map)?);
                             }
                             _ => {
-                                let _ = match _serde::de::MapAccess::next_value::<
-                                    _serde::de::IgnoredAny,
-                                >(&mut __map)
-                                {
-                                    Ok(__val) => __val,
-                                    Err(__err) => return Err(__err),
-                                };
+                                let _ = _serde::de::MapAccess::next_value::<_serde::de::IgnoredAny>(
+                                    &mut __map,
+                                )?;
                             }
                         }
                     }
                     let __field0 = match __field0 {
                         Some(__field0) => __field0,
-                        None => match _serde::private::de::missing_field("name") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("name")?,
                     };
                     let __field1 = match __field1 {
                         Some(__field1) => __field1,
-                        None => match _serde::private::de::missing_field("features") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("features")?,
                     };
                     let __field2 = match __field2 {
                         Some(__field2) => __field2,
-                        None => match _serde::private::de::missing_field("manifest_path") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("manifest_path")?,
                     };
                     Ok(Package { name: __field0, features: __field1, manifest_path: __field2 })
                 }
@@ -543,13 +463,9 @@ mod toml {
                 where
                     __A: _serde::de::SeqAccess<'de>,
                 {
-                    let __field0 = match match _serde::de::SeqAccess::next_element::<
-                        Option<TomlProject>,
-                    >(&mut __seq)
-                    {
-                        Ok(__val) => __val,
-                        Err(__err) => return Err(__err),
-                    } {
+                    let __field0 = match _serde::de::SeqAccess::next_element::<Option<TomlProject>>(
+                        &mut __seq,
+                    )? {
                         Some(__value) => __value,
                         None => {
                             return Err(_serde::de::Error::invalid_length(
@@ -560,13 +476,9 @@ mod toml {
                     };
                     let __field1 = Default::default();
                     let __field2 = Default::default();
-                    let __field3 = match match _serde::de::SeqAccess::next_element::<
-                        Option<TomlWorkspace>,
-                    >(&mut __seq)
-                    {
-                        Ok(__val) => __val,
-                        Err(__err) => return Err(__err),
-                    } {
+                    let __field3 = match _serde::de::SeqAccess::next_element::<Option<TomlWorkspace>>(
+                        &mut __seq,
+                    )? {
                         Some(__value) => __value,
                         None => {
                             return Err(_serde::de::Error::invalid_length(
@@ -589,11 +501,7 @@ mod toml {
                 {
                     let mut __field0: Option<Option<TomlProject>> = None;
                     let mut __field3: Option<Option<TomlWorkspace>> = None;
-                    while let Some(__key) =
-                        match _serde::de::MapAccess::next_key::<__Field>(&mut __map) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        }
+                    while let Some(__key) = _serde::de::MapAccess::next_key::<__Field>(&mut __map)?
                     {
                         match __key {
                             __Field::__field0 => {
@@ -604,14 +512,9 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field0 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<TomlProject>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field0 = Some(_serde::de::MapAccess::next_value::<
+                                    Option<TomlProject>,
+                                >(&mut __map)?);
                             }
                             __Field::__field3 => {
                                 if Option::is_some(&__field3) {
@@ -621,39 +524,24 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field3 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<TomlWorkspace>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field3 = Some(_serde::de::MapAccess::next_value::<
+                                    Option<TomlWorkspace>,
+                                >(&mut __map)?);
                             }
                             _ => {
-                                let _ = match _serde::de::MapAccess::next_value::<
-                                    _serde::de::IgnoredAny,
-                                >(&mut __map)
-                                {
-                                    Ok(__val) => __val,
-                                    Err(__err) => return Err(__err),
-                                };
+                                let _ = _serde::de::MapAccess::next_value::<_serde::de::IgnoredAny>(
+                                    &mut __map,
+                                )?;
                             }
                         }
                     }
                     let __field0 = match __field0 {
                         Some(__field0) => __field0,
-                        None => match _serde::private::de::missing_field("package") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("package")?,
                     };
                     let __field3 = match __field3 {
                         Some(__field3) => __field3,
-                        None => match _serde::private::de::missing_field("workspace") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("workspace")?,
                     };
                     Ok(TomlManifest {
                         package: __field0,
@@ -677,46 +565,27 @@ mod toml {
         where
             __S: _serde::Serializer,
         {
-            let mut __serde_state = match _serde::Serializer::serialize_struct(
+            let mut __serde_state = _serde::Serializer::serialize_struct(
                 __serializer,
                 "TomlManifest",
                 false as usize + 1 + 1 + 1 + 1,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "package",
                 &self.package,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
-                &mut __serde_state,
-                "lib",
-                &self.lib,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(&mut __serde_state, "lib", &self.lib)?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "dependencies",
                 &self.dependencies,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "workspace",
                 &self.workspace,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
+            )?;
             _serde::ser::SerializeStruct::end(__serde_state)
         }
     }
@@ -790,13 +659,9 @@ mod toml {
                 where
                     __A: _serde::de::SeqAccess<'de>,
                 {
-                    let __field0 = match match _serde::de::SeqAccess::next_element::<
-                        Option<Vec<String>>,
-                    >(&mut __seq)
-                    {
-                        Ok(__val) => __val,
-                        Err(__err) => return Err(__err),
-                    } {
+                    let __field0 = match _serde::de::SeqAccess::next_element::<Option<Vec<String>>>(
+                        &mut __seq,
+                    )? {
                         Some(__value) => __value,
                         None => {
                             return Err(_serde::de::Error::invalid_length(
@@ -813,11 +678,7 @@ mod toml {
                     __A: _serde::de::MapAccess<'de>,
                 {
                     let mut __field0: Option<Option<Vec<String>>> = None;
-                    while let Some(__key) =
-                        match _serde::de::MapAccess::next_key::<__Field>(&mut __map) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        }
+                    while let Some(__key) = _serde::de::MapAccess::next_key::<__Field>(&mut __map)?
                     {
                         match __key {
                             __Field::__field0 => {
@@ -828,32 +689,20 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field0 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<Vec<String>>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field0 = Some(_serde::de::MapAccess::next_value::<
+                                    Option<Vec<String>>,
+                                >(&mut __map)?);
                             }
                             _ => {
-                                let _ = match _serde::de::MapAccess::next_value::<
-                                    _serde::de::IgnoredAny,
-                                >(&mut __map)
-                                {
-                                    Ok(__val) => __val,
-                                    Err(__err) => return Err(__err),
-                                };
+                                let _ = _serde::de::MapAccess::next_value::<_serde::de::IgnoredAny>(
+                                    &mut __map,
+                                )?;
                             }
                         }
                     }
                     let __field0 = match __field0 {
                         Some(__field0) => __field0,
-                        None => match _serde::private::de::missing_field("members") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("members")?,
                     };
                     Ok(TomlWorkspace { members: __field0 })
                 }
@@ -872,22 +721,16 @@ mod toml {
         where
             __S: _serde::Serializer,
         {
-            let mut __serde_state = match _serde::Serializer::serialize_struct(
+            let mut __serde_state = _serde::Serializer::serialize_struct(
                 __serializer,
                 "TomlWorkspace",
                 false as usize + 1,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "members",
                 &self.members,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
+            )?;
             _serde::ser::SerializeStruct::end(__serde_state)
         }
     }
@@ -961,13 +804,10 @@ mod toml {
                 where
                     __A: _serde::de::SeqAccess<'de>,
                 {
-                    let __field0 = match match _serde::de::SeqAccess::next_element::<
+                    let __field0 = match _serde::de::SeqAccess::next_element::<
                         Option<BTreeMap<String, TomlDependency>>,
-                    >(&mut __seq)
+                    >(&mut __seq)?
                     {
-                        Ok(__val) => __val,
-                        Err(__err) => return Err(__err),
-                    } {
                         Some(__value) => __value,
                         None => {
                             return Err(_serde::de::Error::invalid_length(
@@ -984,11 +824,7 @@ mod toml {
                     __A: _serde::de::MapAccess<'de>,
                 {
                     let mut __field0: Option<Option<BTreeMap<String, TomlDependency>>> = None;
-                    while let Some(__key) =
-                        match _serde::de::MapAccess::next_key::<__Field>(&mut __map) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        }
+                    while let Some(__key) = _serde::de::MapAccess::next_key::<__Field>(&mut __map)?
                     {
                         match __key {
                             __Field::__field0 => {
@@ -999,33 +835,20 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field0 = Some(
-                                    match _serde::de::MapAccess::next_value::<
-                                        Option<BTreeMap<String, TomlDependency>>,
-                                    >(&mut __map)
-                                    {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field0 = Some(_serde::de::MapAccess::next_value::<
+                                    Option<BTreeMap<String, TomlDependency>>,
+                                >(&mut __map)?);
                             }
                             _ => {
-                                let _ = match _serde::de::MapAccess::next_value::<
-                                    _serde::de::IgnoredAny,
-                                >(&mut __map)
-                                {
-                                    Ok(__val) => __val,
-                                    Err(__err) => return Err(__err),
-                                };
+                                let _ = _serde::de::MapAccess::next_value::<_serde::de::IgnoredAny>(
+                                    &mut __map,
+                                )?;
                             }
                         }
                     }
                     let __field0 = match __field0 {
                         Some(__field0) => __field0,
-                        None => match _serde::private::de::missing_field("dependencies") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("dependencies")?,
                     };
                     Ok(TomlPlatform { dependencies: __field0 })
                 }
@@ -1044,22 +867,16 @@ mod toml {
         where
             __S: _serde::Serializer,
         {
-            let mut __serde_state = match _serde::Serializer::serialize_struct(
+            let mut __serde_state = _serde::Serializer::serialize_struct(
                 __serializer,
                 "TomlPlatform",
                 false as usize + 1,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "dependencies",
                 &self.dependencies,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
+            )?;
             _serde::ser::SerializeStruct::end(__serde_state)
         }
     }
@@ -1177,27 +994,19 @@ mod toml {
                 where
                     __A: _serde::de::SeqAccess<'de>,
                 {
-                    let __field0 = match match _serde::de::SeqAccess::next_element::<Option<String>>(
+                    let __field0 =
+                        match _serde::de::SeqAccess::next_element::<Option<String>>(&mut __seq)? {
+                            Some(__value) => __value,
+                            None => {
+                                return Err(_serde::de::Error::invalid_length(
+                                    0usize,
+                                    &"struct TomlTarget with 12 elements",
+                                ));
+                            }
+                        };
+                    let __field1 = match _serde::de::SeqAccess::next_element::<Option<Vec<String>>>(
                         &mut __seq,
-                    ) {
-                        Ok(__val) => __val,
-                        Err(__err) => return Err(__err),
-                    } {
-                        Some(__value) => __value,
-                        None => {
-                            return Err(_serde::de::Error::invalid_length(
-                                0usize,
-                                &"struct TomlTarget with 12 elements",
-                            ));
-                        }
-                    };
-                    let __field1 = match match _serde::de::SeqAccess::next_element::<
-                        Option<Vec<String>>,
-                    >(&mut __seq)
-                    {
-                        Ok(__val) => __val,
-                        Err(__err) => return Err(__err),
-                    } {
+                    )? {
                         Some(__value) => __value,
                         None => {
                             return Err(_serde::de::Error::invalid_length(
@@ -1206,26 +1015,18 @@ mod toml {
                             ));
                         }
                     };
-                    let __field2 = match match _serde::de::SeqAccess::next_element::<Option<PathBuf>>(
-                        &mut __seq,
-                    ) {
-                        Ok(__val) => __val,
-                        Err(__err) => return Err(__err),
-                    } {
-                        Some(__value) => __value,
-                        None => {
-                            return Err(_serde::de::Error::invalid_length(
-                                2usize,
-                                &"struct TomlTarget with 12 elements",
-                            ));
-                        }
-                    };
+                    let __field2 =
+                        match _serde::de::SeqAccess::next_element::<Option<PathBuf>>(&mut __seq)? {
+                            Some(__value) => __value,
+                            None => {
+                                return Err(_serde::de::Error::invalid_length(
+                                    2usize,
+                                    &"struct TomlTarget with 12 elements",
+                                ));
+                            }
+                        };
                     let __field3 =
-                        match match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)
-                        {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
+                        match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)? {
                             Some(__value) => __value,
                             None => {
                                 return Err(_serde::de::Error::invalid_length(
@@ -1235,11 +1036,7 @@ mod toml {
                             }
                         };
                     let __field4 =
-                        match match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)
-                        {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
+                        match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)? {
                             Some(__value) => __value,
                             None => {
                                 return Err(_serde::de::Error::invalid_length(
@@ -1249,11 +1046,7 @@ mod toml {
                             }
                         };
                     let __field5 =
-                        match match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)
-                        {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
+                        match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)? {
                             Some(__value) => __value,
                             None => {
                                 return Err(_serde::de::Error::invalid_length(
@@ -1263,11 +1056,7 @@ mod toml {
                             }
                         };
                     let __field6 =
-                        match match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)
-                        {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
+                        match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)? {
                             Some(__value) => __value,
                             None => {
                                 return Err(_serde::de::Error::invalid_length(
@@ -1277,11 +1066,7 @@ mod toml {
                             }
                         };
                     let __field7 =
-                        match match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)
-                        {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
+                        match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)? {
                             Some(__value) => __value,
                             None => {
                                 return Err(_serde::de::Error::invalid_length(
@@ -1291,11 +1076,7 @@ mod toml {
                             }
                         };
                     let __field8 =
-                        match match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)
-                        {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
+                        match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)? {
                             Some(__value) => __value,
                             None => {
                                 return Err(_serde::de::Error::invalid_length(
@@ -1305,11 +1086,7 @@ mod toml {
                             }
                         };
                     let __field9 =
-                        match match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)
-                        {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
+                        match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)? {
                             Some(__value) => __value,
                             None => {
                                 return Err(_serde::de::Error::invalid_length(
@@ -1318,13 +1095,9 @@ mod toml {
                                 ));
                             }
                         };
-                    let __field10 = match match _serde::de::SeqAccess::next_element::<
-                        Option<Vec<String>>,
-                    >(&mut __seq)
-                    {
-                        Ok(__val) => __val,
-                        Err(__err) => return Err(__err),
-                    } {
+                    let __field10 = match _serde::de::SeqAccess::next_element::<Option<Vec<String>>>(
+                        &mut __seq,
+                    )? {
                         Some(__value) => __value,
                         None => {
                             return Err(_serde::de::Error::invalid_length(
@@ -1333,20 +1106,16 @@ mod toml {
                             ));
                         }
                     };
-                    let __field11 = match match _serde::de::SeqAccess::next_element::<Option<String>>(
-                        &mut __seq,
-                    ) {
-                        Ok(__val) => __val,
-                        Err(__err) => return Err(__err),
-                    } {
-                        Some(__value) => __value,
-                        None => {
-                            return Err(_serde::de::Error::invalid_length(
-                                11usize,
-                                &"struct TomlTarget with 12 elements",
-                            ));
-                        }
-                    };
+                    let __field11 =
+                        match _serde::de::SeqAccess::next_element::<Option<String>>(&mut __seq)? {
+                            Some(__value) => __value,
+                            None => {
+                                return Err(_serde::de::Error::invalid_length(
+                                    11usize,
+                                    &"struct TomlTarget with 12 elements",
+                                ));
+                            }
+                        };
                     Ok(TomlTarget {
                         name: __field0,
                         crate_type: __field1,
@@ -1379,11 +1148,7 @@ mod toml {
                     let mut __field9: Option<Option<bool>> = None;
                     let mut __field10: Option<Option<Vec<String>>> = None;
                     let mut __field11: Option<Option<String>> = None;
-                    while let Some(__key) =
-                        match _serde::de::MapAccess::next_key::<__Field>(&mut __map) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        }
+                    while let Some(__key) = _serde::de::MapAccess::next_key::<__Field>(&mut __map)?
                     {
                         match __key {
                             __Field::__field0 => {
@@ -1392,14 +1157,10 @@ mod toml {
                                         <__A::Error as _serde::de::Error>::duplicate_field("name"),
                                     );
                                 }
-                                __field0 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<String>>(
+                                __field0 =
+                                    Some(_serde::de::MapAccess::next_value::<Option<String>>(
                                         &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                    )?);
                             }
                             __Field::__field1 => {
                                 if Option::is_some(&__field1) {
@@ -1409,14 +1170,9 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field1 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<Vec<String>>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field1 = Some(_serde::de::MapAccess::next_value::<
+                                    Option<Vec<String>>,
+                                >(&mut __map)?);
                             }
                             __Field::__field2 => {
                                 if Option::is_some(&__field2) {
@@ -1424,14 +1180,9 @@ mod toml {
                                         <__A::Error as _serde::de::Error>::duplicate_field("path"),
                                     );
                                 }
-                                __field2 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<PathBuf>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field2 = Some(_serde::de::MapAccess::next_value::<
+                                    Option<PathBuf>,
+                                >(&mut __map)?);
                             }
                             __Field::__field3 => {
                                 if Option::is_some(&__field3) {
@@ -1439,14 +1190,9 @@ mod toml {
                                         <__A::Error as _serde::de::Error>::duplicate_field("test"),
                                     );
                                 }
-                                __field3 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<bool>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field3 = Some(_serde::de::MapAccess::next_value::<Option<bool>>(
+                                    &mut __map,
+                                )?);
                             }
                             __Field::__field4 => {
                                 if Option::is_some(&__field4) {
@@ -1456,14 +1202,9 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field4 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<bool>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field4 = Some(_serde::de::MapAccess::next_value::<Option<bool>>(
+                                    &mut __map,
+                                )?);
                             }
                             __Field::__field5 => {
                                 if Option::is_some(&__field5) {
@@ -1471,14 +1212,9 @@ mod toml {
                                         <__A::Error as _serde::de::Error>::duplicate_field("bench"),
                                     );
                                 }
-                                __field5 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<bool>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field5 = Some(_serde::de::MapAccess::next_value::<Option<bool>>(
+                                    &mut __map,
+                                )?);
                             }
                             __Field::__field6 => {
                                 if Option::is_some(&__field6) {
@@ -1486,14 +1222,9 @@ mod toml {
                                         <__A::Error as _serde::de::Error>::duplicate_field("doc"),
                                     );
                                 }
-                                __field6 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<bool>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field6 = Some(_serde::de::MapAccess::next_value::<Option<bool>>(
+                                    &mut __map,
+                                )?);
                             }
                             __Field::__field7 => {
                                 if Option::is_some(&__field7) {
@@ -1503,14 +1234,9 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field7 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<bool>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field7 = Some(_serde::de::MapAccess::next_value::<Option<bool>>(
+                                    &mut __map,
+                                )?);
                             }
                             __Field::__field8 => {
                                 if Option::is_some(&__field8) {
@@ -1520,14 +1246,9 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field8 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<bool>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field8 = Some(_serde::de::MapAccess::next_value::<Option<bool>>(
+                                    &mut __map,
+                                )?);
                             }
                             __Field::__field9 => {
                                 if Option::is_some(&__field9) {
@@ -1537,14 +1258,9 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field9 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<bool>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field9 = Some(_serde::de::MapAccess::next_value::<Option<bool>>(
+                                    &mut __map,
+                                )?);
                             }
                             __Field::__field10 => {
                                 if Option::is_some(&__field10) {
@@ -1554,14 +1270,9 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field10 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<Vec<String>>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field10 = Some(_serde::de::MapAccess::next_value::<
+                                    Option<Vec<String>>,
+                                >(&mut __map)?);
                             }
                             __Field::__field11 => {
                                 if Option::is_some(&__field11) {
@@ -1571,109 +1282,64 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field11 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<String>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field11 = Some(_serde::de::MapAccess::next_value::<
+                                    Option<String>,
+                                >(&mut __map)?);
                             }
                             _ => {
-                                let _ = match _serde::de::MapAccess::next_value::<
-                                    _serde::de::IgnoredAny,
-                                >(&mut __map)
-                                {
-                                    Ok(__val) => __val,
-                                    Err(__err) => return Err(__err),
-                                };
+                                let _ = _serde::de::MapAccess::next_value::<_serde::de::IgnoredAny>(
+                                    &mut __map,
+                                )?;
                             }
                         }
                     }
                     let __field0 = match __field0 {
                         Some(__field0) => __field0,
-                        None => match _serde::private::de::missing_field("name") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("name")?,
                     };
                     let __field1 = match __field1 {
                         Some(__field1) => __field1,
-                        None => match _serde::private::de::missing_field("crate-type") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("crate-type")?,
                     };
                     let __field2 = match __field2 {
                         Some(__field2) => __field2,
-                        None => match _serde::private::de::missing_field("path") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("path")?,
                     };
                     let __field3 = match __field3 {
                         Some(__field3) => __field3,
-                        None => match _serde::private::de::missing_field("test") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("test")?,
                     };
                     let __field4 = match __field4 {
                         Some(__field4) => __field4,
-                        None => match _serde::private::de::missing_field("doctest") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("doctest")?,
                     };
                     let __field5 = match __field5 {
                         Some(__field5) => __field5,
-                        None => match _serde::private::de::missing_field("bench") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("bench")?,
                     };
                     let __field6 = match __field6 {
                         Some(__field6) => __field6,
-                        None => match _serde::private::de::missing_field("doc") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("doc")?,
                     };
                     let __field7 = match __field7 {
                         Some(__field7) => __field7,
-                        None => match _serde::private::de::missing_field("plugin") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("plugin")?,
                     };
                     let __field8 = match __field8 {
                         Some(__field8) => __field8,
-                        None => match _serde::private::de::missing_field("proc-macro") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("proc-macro")?,
                     };
                     let __field9 = match __field9 {
                         Some(__field9) => __field9,
-                        None => match _serde::private::de::missing_field("harness") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("harness")?,
                     };
                     let __field10 = match __field10 {
                         Some(__field10) => __field10,
-                        None => match _serde::private::de::missing_field("required-features") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("required-features")?,
                     };
                     let __field11 = match __field11 {
                         Some(__field11) => __field11,
-                        None => match _serde::private::de::missing_field("edition") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("edition")?,
                     };
                     Ok(TomlTarget {
                         name: __field0,
@@ -1718,110 +1384,55 @@ mod toml {
         where
             __S: _serde::Serializer,
         {
-            let mut __serde_state = match _serde::Serializer::serialize_struct(
+            let mut __serde_state = _serde::Serializer::serialize_struct(
                 __serializer,
                 "TomlTarget",
                 false as usize + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
-                &mut __serde_state,
-                "name",
-                &self.name,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(&mut __serde_state, "name", &self.name)?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "crate-type",
                 &self.crate_type,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
-                &mut __serde_state,
-                "path",
-                &self.path,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
-                &mut __serde_state,
-                "test",
-                &self.test,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(&mut __serde_state, "path", &self.path)?;
+            _serde::ser::SerializeStruct::serialize_field(&mut __serde_state, "test", &self.test)?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "doctest",
                 &self.doctest,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "bench",
                 &self.bench,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
-                &mut __serde_state,
-                "doc",
-                &self.doc,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(&mut __serde_state, "doc", &self.doc)?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "plugin",
                 &self.plugin,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "proc-macro",
                 &self.proc_macro,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "harness",
                 &self.harness,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "required-features",
                 &self.required_features,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "edition",
                 &self.edition,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
+            )?;
             _serde::ser::SerializeStruct::end(__serde_state)
         }
     }
@@ -1845,13 +1456,9 @@ mod toml {
         where
             __D: _serde::Deserializer<'de>,
         {
-            let __content =
-                match <_serde::private::de::Content<'_> as _serde::Deserialize>::deserialize(
-                    __deserializer,
-                ) {
-                    Ok(__val) => __val,
-                    Err(__err) => return Err(__err),
-                };
+            let __content = <_serde::private::de::Content<'_> as _serde::Deserialize>::deserialize(
+                __deserializer,
+            )?;
             if let Ok(__ok) = Result::map(
                 <String as _serde::Deserialize>::deserialize(
                     _serde::private::de::ContentRefDeserializer::<__D::Error>::new(&__content),
@@ -1878,54 +1485,32 @@ mod toml {
         where
             __S: _serde::Serializer,
         {
-            let mut __serde_state = match _serde::Serializer::serialize_struct(
+            let mut __serde_state = _serde::Serializer::serialize_struct(
                 __serializer,
                 "DetailedTomlDependency",
                 false as usize + 1 + 1 + 1 + 1 + 1,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "version",
                 &self.version,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
-                &mut __serde_state,
-                "path",
-                &self.path,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(&mut __serde_state, "path", &self.path)?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "features",
                 &self.features,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "optional",
                 &self.optional,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "default-features",
                 &self.default_features,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
+            )?;
             _serde::ser::SerializeStruct::end(__serde_state)
         }
     }
@@ -2015,41 +1600,29 @@ mod toml {
                 where
                     __A: _serde::de::SeqAccess<'de>,
                 {
-                    let __field0 = match match _serde::de::SeqAccess::next_element::<Option<String>>(
+                    let __field0 =
+                        match _serde::de::SeqAccess::next_element::<Option<String>>(&mut __seq)? {
+                            Some(__value) => __value,
+                            None => {
+                                return Err(_serde::de::Error::invalid_length(
+                                    0usize,
+                                    &"struct DetailedTomlDependency with 5 elements",
+                                ));
+                            }
+                        };
+                    let __field1 =
+                        match _serde::de::SeqAccess::next_element::<Option<String>>(&mut __seq)? {
+                            Some(__value) => __value,
+                            None => {
+                                return Err(_serde::de::Error::invalid_length(
+                                    1usize,
+                                    &"struct DetailedTomlDependency with 5 elements",
+                                ));
+                            }
+                        };
+                    let __field2 = match _serde::de::SeqAccess::next_element::<Option<Vec<String>>>(
                         &mut __seq,
-                    ) {
-                        Ok(__val) => __val,
-                        Err(__err) => return Err(__err),
-                    } {
-                        Some(__value) => __value,
-                        None => {
-                            return Err(_serde::de::Error::invalid_length(
-                                0usize,
-                                &"struct DetailedTomlDependency with 5 elements",
-                            ));
-                        }
-                    };
-                    let __field1 = match match _serde::de::SeqAccess::next_element::<Option<String>>(
-                        &mut __seq,
-                    ) {
-                        Ok(__val) => __val,
-                        Err(__err) => return Err(__err),
-                    } {
-                        Some(__value) => __value,
-                        None => {
-                            return Err(_serde::de::Error::invalid_length(
-                                1usize,
-                                &"struct DetailedTomlDependency with 5 elements",
-                            ));
-                        }
-                    };
-                    let __field2 = match match _serde::de::SeqAccess::next_element::<
-                        Option<Vec<String>>,
-                    >(&mut __seq)
-                    {
-                        Ok(__val) => __val,
-                        Err(__err) => return Err(__err),
-                    } {
+                    )? {
                         Some(__value) => __value,
                         None => {
                             return Err(_serde::de::Error::invalid_length(
@@ -2059,11 +1632,7 @@ mod toml {
                         }
                     };
                     let __field3 =
-                        match match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)
-                        {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
+                        match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)? {
                             Some(__value) => __value,
                             None => {
                                 return Err(_serde::de::Error::invalid_length(
@@ -2073,11 +1642,7 @@ mod toml {
                             }
                         };
                     let __field4 =
-                        match match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)
-                        {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
+                        match _serde::de::SeqAccess::next_element::<Option<bool>>(&mut __seq)? {
                             Some(__value) => __value,
                             None => {
                                 return Err(_serde::de::Error::invalid_length(
@@ -2104,11 +1669,7 @@ mod toml {
                     let mut __field2: Option<Option<Vec<String>>> = None;
                     let mut __field3: Option<Option<bool>> = None;
                     let mut __field4: Option<Option<bool>> = None;
-                    while let Some(__key) =
-                        match _serde::de::MapAccess::next_key::<__Field>(&mut __map) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        }
+                    while let Some(__key) = _serde::de::MapAccess::next_key::<__Field>(&mut __map)?
                     {
                         match __key {
                             __Field::__field0 => {
@@ -2119,14 +1680,10 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field0 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<String>>(
+                                __field0 =
+                                    Some(_serde::de::MapAccess::next_value::<Option<String>>(
                                         &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                    )?);
                             }
                             __Field::__field1 => {
                                 if Option::is_some(&__field1) {
@@ -2134,14 +1691,10 @@ mod toml {
                                         <__A::Error as _serde::de::Error>::duplicate_field("path"),
                                     );
                                 }
-                                __field1 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<String>>(
+                                __field1 =
+                                    Some(_serde::de::MapAccess::next_value::<Option<String>>(
                                         &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                    )?);
                             }
                             __Field::__field2 => {
                                 if Option::is_some(&__field2) {
@@ -2151,14 +1704,9 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field2 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<Vec<String>>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field2 = Some(_serde::de::MapAccess::next_value::<
+                                    Option<Vec<String>>,
+                                >(&mut __map)?);
                             }
                             __Field::__field3 => {
                                 if Option::is_some(&__field3) {
@@ -2168,14 +1716,9 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field3 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<bool>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field3 = Some(_serde::de::MapAccess::next_value::<Option<bool>>(
+                                    &mut __map,
+                                )?);
                             }
                             __Field::__field4 => {
                                 if Option::is_some(&__field4) {
@@ -2185,60 +1728,36 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field4 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<bool>>(
-                                        &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field4 = Some(_serde::de::MapAccess::next_value::<Option<bool>>(
+                                    &mut __map,
+                                )?);
                             }
                             _ => {
-                                let _ = match _serde::de::MapAccess::next_value::<
-                                    _serde::de::IgnoredAny,
-                                >(&mut __map)
-                                {
-                                    Ok(__val) => __val,
-                                    Err(__err) => return Err(__err),
-                                };
+                                let _ = _serde::de::MapAccess::next_value::<_serde::de::IgnoredAny>(
+                                    &mut __map,
+                                )?;
                             }
                         }
                     }
                     let __field0 = match __field0 {
                         Some(__field0) => __field0,
-                        None => match _serde::private::de::missing_field("version") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("version")?,
                     };
                     let __field1 = match __field1 {
                         Some(__field1) => __field1,
-                        None => match _serde::private::de::missing_field("path") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("path")?,
                     };
                     let __field2 = match __field2 {
                         Some(__field2) => __field2,
-                        None => match _serde::private::de::missing_field("features") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("features")?,
                     };
                     let __field3 = match __field3 {
                         Some(__field3) => __field3,
-                        None => match _serde::private::de::missing_field("optional") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("optional")?,
                     };
                     let __field4 = match __field4 {
                         Some(__field4) => __field4,
-                        None => match _serde::private::de::missing_field("default-features") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("default-features")?,
                     };
                     Ok(DetailedTomlDependency {
                         version: __field0,
@@ -2341,54 +1860,41 @@ mod toml {
                 where
                     __A: _serde::de::SeqAccess<'de>,
                 {
-                    let __field0 = match match _serde::de::SeqAccess::next_element::<Option<String>>(
-                        &mut __seq,
-                    ) {
-                        Ok(__val) => __val,
-                        Err(__err) => return Err(__err),
-                    } {
+                    let __field0 =
+                        match _serde::de::SeqAccess::next_element::<Option<String>>(&mut __seq)? {
+                            Some(__value) => __value,
+                            None => {
+                                return Err(_serde::de::Error::invalid_length(
+                                    0usize,
+                                    &"struct TomlProject with 4 elements",
+                                ));
+                            }
+                        };
+                    let __field1 = match _serde::de::SeqAccess::next_element::<String>(&mut __seq)?
+                    {
                         Some(__value) => __value,
                         None => {
                             return Err(_serde::de::Error::invalid_length(
-                                0usize,
+                                1usize,
                                 &"struct TomlProject with 4 elements",
                             ));
                         }
                     };
-                    let __field1 =
-                        match match _serde::de::SeqAccess::next_element::<String>(&mut __seq) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
-                            Some(__value) => __value,
-                            None => {
-                                return Err(_serde::de::Error::invalid_length(
-                                    1usize,
-                                    &"struct TomlProject with 4 elements",
-                                ));
-                            }
-                        };
-                    let __field2 =
-                        match match _serde::de::SeqAccess::next_element::<String>(&mut __seq) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
-                            Some(__value) => __value,
-                            None => {
-                                return Err(_serde::de::Error::invalid_length(
-                                    2usize,
-                                    &"struct TomlProject with 4 elements",
-                                ));
-                            }
-                        };
-                    let __field3 =
-                        match match _serde::de::SeqAccess::next_element::<Publish>(&mut __seq) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        } {
-                            Some(__value) => __value,
-                            None => Default::default(),
-                        };
+                    let __field2 = match _serde::de::SeqAccess::next_element::<String>(&mut __seq)?
+                    {
+                        Some(__value) => __value,
+                        None => {
+                            return Err(_serde::de::Error::invalid_length(
+                                2usize,
+                                &"struct TomlProject with 4 elements",
+                            ));
+                        }
+                    };
+                    let __field3 = match _serde::de::SeqAccess::next_element::<Publish>(&mut __seq)?
+                    {
+                        Some(__value) => __value,
+                        None => Default::default(),
+                    };
                     Ok(TomlProject {
                         edition: __field0,
                         name: __field1,
@@ -2405,11 +1911,7 @@ mod toml {
                     let mut __field1: Option<String> = None;
                     let mut __field2: Option<String> = None;
                     let mut __field3: Option<Publish> = None;
-                    while let Some(__key) =
-                        match _serde::de::MapAccess::next_key::<__Field>(&mut __map) {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        }
+                    while let Some(__key) = _serde::de::MapAccess::next_key::<__Field>(&mut __map)?
                     {
                         match __key {
                             __Field::__field0 => {
@@ -2420,14 +1922,10 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field0 = Some(
-                                    match _serde::de::MapAccess::next_value::<Option<String>>(
+                                __field0 =
+                                    Some(_serde::de::MapAccess::next_value::<Option<String>>(
                                         &mut __map,
-                                    ) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                    )?);
                             }
                             __Field::__field1 => {
                                 if Option::is_some(&__field1) {
@@ -2435,12 +1933,8 @@ mod toml {
                                         <__A::Error as _serde::de::Error>::duplicate_field("name"),
                                     );
                                 }
-                                __field1 = Some(
-                                    match _serde::de::MapAccess::next_value::<String>(&mut __map) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field1 =
+                                    Some(_serde::de::MapAccess::next_value::<String>(&mut __map)?);
                             }
                             __Field::__field2 => {
                                 if Option::is_some(&__field2) {
@@ -2450,12 +1944,8 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field2 = Some(
-                                    match _serde::de::MapAccess::next_value::<String>(&mut __map) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field2 =
+                                    Some(_serde::de::MapAccess::next_value::<String>(&mut __map)?);
                             }
                             __Field::__field3 => {
                                 if Option::is_some(&__field3) {
@@ -2465,44 +1955,27 @@ mod toml {
                                         ),
                                     );
                                 }
-                                __field3 = Some(
-                                    match _serde::de::MapAccess::next_value::<Publish>(&mut __map) {
-                                        Ok(__val) => __val,
-                                        Err(__err) => return Err(__err),
-                                    },
-                                );
+                                __field3 =
+                                    Some(_serde::de::MapAccess::next_value::<Publish>(&mut __map)?);
                             }
                             _ => {
-                                let _ = match _serde::de::MapAccess::next_value::<
-                                    _serde::de::IgnoredAny,
-                                >(&mut __map)
-                                {
-                                    Ok(__val) => __val,
-                                    Err(__err) => return Err(__err),
-                                };
+                                let _ = _serde::de::MapAccess::next_value::<_serde::de::IgnoredAny>(
+                                    &mut __map,
+                                )?;
                             }
                         }
                     }
                     let __field0 = match __field0 {
                         Some(__field0) => __field0,
-                        None => match _serde::private::de::missing_field("edition") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("edition")?,
                     };
                     let __field1 = match __field1 {
                         Some(__field1) => __field1,
-                        None => match _serde::private::de::missing_field("name") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("name")?,
                     };
                     let __field2 = match __field2 {
                         Some(__field2) => __field2,
-                        None => match _serde::private::de::missing_field("version") {
-                            Ok(__val) => __val,
-                            Err(__err) => return Err(__err),
-                        },
+                        None => _serde::private::de::missing_field("version")?,
                     };
                     let __field3 = match __field3 {
                         Some(__field3) => __field3,
@@ -2530,46 +2003,27 @@ mod toml {
         where
             __S: _serde::Serializer,
         {
-            let mut __serde_state = match _serde::Serializer::serialize_struct(
+            let mut __serde_state = _serde::Serializer::serialize_struct(
                 __serializer,
                 "TomlProject",
                 false as usize + 1 + 1 + 1 + 1,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "edition",
                 &self.edition,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
-                &mut __serde_state,
-                "name",
-                &self.name,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(&mut __serde_state, "name", &self.name)?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "version",
                 &self.version,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
-            match _serde::ser::SerializeStruct::serialize_field(
+            )?;
+            _serde::ser::SerializeStruct::serialize_field(
                 &mut __serde_state,
                 "publish",
                 &self.publish,
-            ) {
-                Ok(__val) => __val,
-                Err(__err) => return Err(__err),
-            };
+            )?;
             _serde::ser::SerializeStruct::end(__serde_state)
         }
     }
@@ -2578,13 +2032,9 @@ mod toml {
         where
             __D: _serde::Deserializer<'de>,
         {
-            let __content =
-                match <_serde::private::de::Content<'_> as _serde::Deserialize>::deserialize(
-                    __deserializer,
-                ) {
-                    Ok(__val) => __val,
-                    Err(__err) => return Err(__err),
-                };
+            let __content = <_serde::private::de::Content<'_> as _serde::Deserialize>::deserialize(
+                __deserializer,
+            )?;
             if let Ok(__ok) = Result::map(
                 <bool as _serde::Deserialize>::deserialize(
                     _serde::private::de::ContentRefDeserializer::<__D::Error>::new(&__content),
