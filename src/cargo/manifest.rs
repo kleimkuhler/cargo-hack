@@ -26,16 +26,16 @@ pub(crate) fn find_root_manifest_for_wd(cwd: &Path) -> Result<PathBuf> {
 #[derive(Debug)]
 pub(crate) struct Manifest {
     pub(crate) path: PathBuf,
-    pub(crate) raw: Vec<u8>,
+    pub(crate) raw: String,
     toml: TomlManifest,
 }
 
 impl Manifest {
     pub(crate) fn new(path: impl Into<PathBuf>) -> Result<Self> {
         let path = path.into();
-        let raw = fs::read(&path)
+        let raw = fs::read_to_string(&path)
             .with_context(|| format!("failed to read manifest from {}", path.display()))?;
-        let toml = toml::from_slice(&raw)
+        let toml = toml::from_str(&raw)
             .with_context(|| format!("failed to parse manifest file: {}", path.display()))?;
         Ok(Self { path, raw, toml })
     }
@@ -55,9 +55,9 @@ impl Manifest {
         self.package.as_ref().unwrap().publish == false
     }
 
-    pub(crate) fn remove_dev_deps(&mut self) -> Result<Vec<u8>> {
+    pub(crate) fn remove_dev_deps(&mut self) -> Result<String> {
         super::remove_dev_deps::remove_dev_deps(&mut self.raw);
-        Ok(mem::replace(&mut self.raw, Vec::new()))
+        Ok(mem::replace(&mut self.raw, String::new()))
     }
 
     /*
