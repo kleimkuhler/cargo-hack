@@ -1,5 +1,5 @@
 mod metadata {
-    use crate::cargo::metadata::*;
+    use crate::metadata::*;
     use std::{collections::BTreeMap, fmt, marker::PhantomData, path::PathBuf};
     extern crate serde as _serde;
 
@@ -387,7 +387,7 @@ mod metadata {
 
 mod toml {
     extern crate serde as _serde;
-    use crate::cargo::toml::*;
+    use crate::toml::*;
     use std::{collections::BTreeMap, fmt, marker::PhantomData, path::PathBuf};
     impl<'de> _serde::Deserialize<'de> for TomlManifest {
         fn deserialize<__D>(__deserializer: __D) -> Result<Self, __D::Error>

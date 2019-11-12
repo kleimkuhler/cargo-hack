@@ -6,7 +6,7 @@ use std::{
 
 use anyhow::{bail, Context, Result};
 
-use crate::cargo::toml::TomlManifest;
+use crate::toml::TomlManifest;
 
 // Based on https://github.com/rust-lang/cargo/blob/0.39.0/src/cargo/util/important_paths.rs
 /// Finds the root `Cargo.toml`.
