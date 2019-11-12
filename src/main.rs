@@ -9,8 +9,8 @@ mod cargo;
 mod cli;
 mod process;
 // mod toml_tokenizer;
-mod toml_edit;
-use toml_edit::*;
+// mod toml_edit;
+// use toml_edit::*;
 
 use std::{env, ffi::OsString, fs, path::Path};
 
@@ -111,7 +111,7 @@ fn exec_on_package(args: &Args, package: &Package, line: &ProcessBuilder) -> Res
     if args.ignore_private && manifest.is_private() {
         info!(args.color, "skipped running on {}", package.name_verbose(args));
     } else if args.subcommand.is_some() || args.remove_dev_deps {
-        no_dev_deps(args, package, &manifest, line)?;
+        no_dev_deps(args, package, manifest, line)?;
     }
 
     Ok(())
@@ -120,7 +120,7 @@ fn exec_on_package(args: &Args, package: &Package, line: &ProcessBuilder) -> Res
 fn no_dev_deps(
     args: &Args,
     package: &Package,
-    manifest: &Manifest,
+    mut manifest: Manifest,
     line: &ProcessBuilder,
 ) -> Result<()> {
     struct Bomb<'a> {
@@ -162,7 +162,7 @@ fn no_dev_deps(
     if args.no_dev_deps || args.remove_dev_deps {
         let mut res = Ok(());
         let new = manifest.remove_dev_deps()?;
-        let mut bomb = Bomb { manifest, args, done: false, res: &mut res };
+        let mut bomb = Bomb { manifest: &manifest, args, done: false, res: &mut res };
 
         fs::write(&package.manifest_path, new).with_context(|| {
             format!("failed to update manifest file: {}", package.manifest_path.display())

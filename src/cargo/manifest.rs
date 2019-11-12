@@ -1,12 +1,12 @@
 use std::{
-    fs,
+    fs, mem,
     ops::Deref,
     path::{Path, PathBuf},
 };
 
 use anyhow::{bail, Context, Result};
 // use toml_edit::{Document, Table};
-use crate::toml_edit::{Document, Table};
+// use crate::toml_edit::{Document, Table};
 
 use crate::cargo::toml::TomlManifest;
 
@@ -26,16 +26,16 @@ pub(crate) fn find_root_manifest_for_wd(cwd: &Path) -> Result<PathBuf> {
 #[derive(Debug)]
 pub(crate) struct Manifest {
     pub(crate) path: PathBuf,
-    pub(crate) raw: String,
+    pub(crate) raw: Vec<u8>,
     toml: TomlManifest,
 }
 
 impl Manifest {
     pub(crate) fn new(path: impl Into<PathBuf>) -> Result<Self> {
         let path = path.into();
-        let raw = fs::read_to_string(&path)
+        let raw = fs::read(&path)
             .with_context(|| format!("failed to read manifest from {}", path.display()))?;
-        let toml = toml::from_str(&raw)
+        let toml = toml::from_slice(&raw)
             .with_context(|| format!("failed to parse manifest file: {}", path.display()))?;
         Ok(Self { path, raw, toml })
     }
@@ -55,6 +55,12 @@ impl Manifest {
         self.package.as_ref().unwrap().publish == false
     }
 
+    pub(crate) fn remove_dev_deps(&mut self) -> Result<Vec<u8>> {
+        super::remove_dev_deps::remove_dev_deps(&mut self.raw);
+        Ok(mem::replace(&mut self.raw, Vec::new()))
+    }
+
+    /*
     pub(crate) fn remove_dev_deps(&self) -> Result<String> {
         fn remove_key_and_target_key(table: &mut Table, key: &str) {
             table.remove(key);
@@ -73,7 +79,7 @@ impl Manifest {
         let mut doc: Document = self.raw.parse()?;
         remove_key_and_target_key(doc.as_table_mut(), "dev-dependencies");
         Ok(doc.to_string_in_original_order())
-    }
+    }*/
 }
 
 impl Deref for Manifest {
