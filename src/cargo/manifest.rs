@@ -1,5 +1,5 @@
 use std::{
-    fs, mem,
+    fs,
     ops::Deref,
     path::{Path, PathBuf},
 };
@@ -53,9 +53,10 @@ impl Manifest {
         self.package.as_ref().unwrap().publish == false
     }
 
-    pub(crate) fn remove_dev_deps(&mut self) -> Result<String> {
-        super::remove_dev_deps::remove_dev_deps(&mut self.raw);
-        Ok(mem::replace(&mut self.raw, String::new()))
+    pub(crate) fn remove_dev_deps(&self) -> Result<String> {
+        let mut raw = self.raw.clone();
+        super::remove_dev_deps::remove_dev_deps(&mut raw);
+        Ok(raw)
     }
 }
 
