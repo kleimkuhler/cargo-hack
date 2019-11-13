@@ -54,9 +54,7 @@ impl Manifest {
     }
 
     pub(crate) fn remove_dev_deps(&self) -> Result<String> {
-        let mut raw = self.raw.clone();
-        super::remove_dev_deps::remove_dev_deps(&mut raw);
-        Ok(raw)
+        Ok(super::remove_dev_deps::remove_dev_deps(&self.raw))
     }
 }
 

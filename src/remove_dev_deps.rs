@@ -1,15 +1,16 @@
 use std::cmp;
 
-pub(crate) fn remove_dev_deps(bytes: &mut String) {
+pub(crate) fn remove_dev_deps(bytes: &str) -> String {
     const DEV_DEPS: &str = "dev-dependencies";
     const TARGET: &str = "target.";
 
+    let mut bytes = bytes.to_string();
     let mut prev = 0;
     let mut next = bytes.find('[');
 
     while let Some(mut pos) = next {
         prev = bytes[prev..pos].rfind('\n').map_or(prev, |n| cmp::min(n + prev + 1, pos));
-        dbg!(&bytes[prev..pos]);
+        // dbg!(&bytes[prev..pos]);
 
         if bytes[prev..pos].trim().is_empty() {
             let slice = bytes[pos + 1..].trim_start();
@@ -20,11 +21,11 @@ pub(crate) fn remove_dev_deps(bytes: &mut String) {
                         .rfind('\n')
                         .map_or(0, |n| cmp::min(n + 1, ahead));
 
-                    bytes.drain(pos..maybe_close + back);
-                    next = Some(pos + ahead - back);
+                    bytes.drain(prev..maybe_close + back);
+                    next = Some(prev + ahead - back);
                     continue;
                 } else {
-                    bytes.drain(pos..);
+                    bytes.drain(prev..);
                     break;
                 }
             } else if slice.starts_with(TARGET) {
@@ -39,11 +40,11 @@ pub(crate) fn remove_dev_deps(bytes: &mut String) {
                                 .rfind('\n')
                                 .map_or(0, |n| cmp::min(n + 1, ahead));
 
-                            bytes.drain(pos..close + back);
-                            next = Some(pos + ahead - back);
+                            bytes.drain(prev..close + back);
+                            next = Some(prev + ahead - back);
                             continue;
                         } else {
-                            bytes.drain(pos..);
+                            bytes.drain(prev..);
                             break;
                         }
                     }
@@ -66,19 +67,41 @@ pub(crate) fn remove_dev_deps(bytes: &mut String) {
         next = bytes.get(pos..).and_then(|s| s.find('[')).map(|n| pos + n);
         continue;
     }
+
+    bytes
 }
 
 #[cfg(test)]
 mod tests {
-    use super::remove_dev_deps;
+    use toml_e::remove_dev_deps;
+    // use super::remove_dev_deps;
+
+    mod toml_e {
+        pub(crate) fn remove_dev_deps(raw: &str) -> String {
+            let mut doc: toml_edit::Document = raw.parse().unwrap();
+            remove_key_and_target_key(doc.as_table_mut(), "dev-dependencies");
+            doc.to_string_in_original_order()
+        }
+
+        fn remove_key_and_target_key(table: &mut toml_edit::Table, key: &str) {
+            table.remove(key);
+            if let Some(table) = table.entry("target").as_table_mut() {
+                // `toml_edit::Table` does not have `.iter_mut()`, so collect keys.
+                for k in table.iter().map(|(key, _)| key.to_string()).collect::<Vec<_>>() {
+                    if let Some(table) = table.entry(&k).as_table_mut() {
+                        table.remove(key);
+                    }
+                }
+            }
+        }
+    }
 
     macro_rules! tes {
         ($name:ident, $input:expr, $expected:expr) => {
             #[test]
             fn $name() {
-                let mut buf = $input.to_string();
-                remove_dev_deps(&mut buf);
-                assert_eq!(&$expected[..], buf);
+                let input = remove_dev_deps($input);
+                assert_eq!(&$expected[..], input);
                 // panic!();
             }
         };
