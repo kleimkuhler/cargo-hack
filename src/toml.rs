@@ -1,28 +1,27 @@
 use std::{collections::BTreeMap, path::PathBuf};
 
-// use serde::{Deserialize, Serialize};
+use serde_derive::{Deserialize, Serialize};
 
 // Refs:
 // * https://github.com/rust-lang/cargo/blob/0.40.0/src/cargo/util/toml/mod.rs
 // * https://gitlab.com/crates.rs/cargo_toml
 
-// #[derive(Debug, Deserialize, Serialize)]
-#[derive(Debug)]
-// #[serde(rename_all = "kebab-case")]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
 pub(crate) struct TomlManifest {
     // cargo_features: Option<Vec<String>>, // unstable
     pub(crate) package: Option<TomlProject>,
     // pub(crate) project: Option<TomlProject>, // TODO?
     // profile: Option<TomlProfiles>,
     // Only used for serializing because metadata has more detailed information about this.
-    // #[serde(skip_deserializing)]
+    #[serde(skip_deserializing)]
     pub(crate) lib: Option<TomlTarget>,
     // pub(crate) bin: Option<Vec<TomlTarget>>,
     // pub(crate) example: Option<Vec<TomlTarget>>,
     // pub(crate) test: Option<Vec<TomlTarget>>,
     // pub(crate) bench: Option<Vec<TomlTarget>>,
     // Only used for serializing because metadata has more detailed information about this.
-    // #[serde(skip_deserializing)]
+    #[serde(skip_deserializing)]
     pub(crate) dependencies: Option<BTreeMap<String, TomlDependency>>,
     // dev_dependencies: Option<BTreeMap<String, TomlDependency>>,
     // #[serde(rename = "dev_dependencies")]
@@ -40,9 +39,8 @@ pub(crate) struct TomlManifest {
     // badges: Option<BTreeMap<String, BTreeMap<String, String>>>,
 }
 
-#[derive(Debug)]
-// #[derive(Debug, Deserialize, Serialize)]
-// #[serde(rename_all = "kebab-case")]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
 pub(crate) struct TomlWorkspace {
     pub(crate) members: Option<Vec<String>>,
     // pub(crate) default_members: Option<Vec<String>>,
@@ -50,9 +48,8 @@ pub(crate) struct TomlWorkspace {
 }
 
 /// Corresponds to a `target` entry, but `TomlTarget` is already used.
-#[derive(Debug)]
-// #[derive(Debug, Deserialize, Serialize)]
-// #[serde(rename_all = "kebab-case")]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
 pub(crate) struct TomlPlatform {
     pub(crate) dependencies: Option<BTreeMap<String, TomlDependency>>,
     // pub(crate) build_dependencies: Option<BTreeMap<String, TomlDependency>>,
@@ -63,9 +60,8 @@ pub(crate) struct TomlPlatform {
     // pub(crate) dev_dependencies2: Option<BTreeMap<String, TomlDependency>>,
 }
 
-#[derive(Debug, Default)]
-// #[derive(Debug, Default, Deserialize, Serialize)]
-// #[serde(rename_all = "kebab-case")]
+#[derive(Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
 pub(crate) struct TomlTarget {
     pub(crate) name: Option<String>,
     pub(crate) crate_type: Option<Vec<String>>,
@@ -85,17 +81,15 @@ pub(crate) struct TomlTarget {
     pub(crate) edition: Option<String>,
 }
 
-#[derive(Debug)]
-// #[derive(Debug, Serialize, Deserialize)]
-// #[serde(untagged)]
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
 pub(crate) enum TomlDependency {
     Simple(String),
     Detailed(DetailedTomlDependency),
 }
 
-#[derive(Debug, Default)]
-// #[derive(Debug, Default, Serialize, Deserialize)]
-// #[serde(rename_all = "kebab-case")]
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub(crate) struct DetailedTomlDependency {
     pub(crate) version: Option<String>,
     // pub(crate) registry: Option<String>,
@@ -126,9 +120,8 @@ pub(crate) struct DetailedTomlDependency {
 /// are serialized to a TOML file. For example, you cannot have values after
 /// the field `metadata`, since it is a table and values cannot appear after
 /// tables.
-#[derive(Debug)]
-// #[derive(Debug, Deserialize, Serialize)]
-// #[serde(rename_all = "kebab-case")]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
 pub(crate) struct TomlProject {
     pub(crate) edition: Option<String>,
     pub(crate) name: String,
@@ -139,7 +132,7 @@ pub(crate) struct TomlProject {
     // pub(crate) links: Option<String>,
     // pub(crate) exclude: Option<Vec<String>>,
     // pub(crate) include: Option<Vec<String>>,
-    // #[serde(default)]
+    #[serde(default)]
     pub(crate) publish: Publish,
     // pub(crate) publish_lockfile: Option<bool>, // TODO?
     // pub(crate) workspace: Option<String>,
@@ -163,9 +156,8 @@ pub(crate) struct TomlProject {
     // pub(crate) metadata: Option<Value>,
 }
 
-#[derive(Debug)]
-// #[derive(Debug, Deserialize, Serialize)]
-// #[serde(untagged)]
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(untagged)]
 pub(crate) enum Publish {
     Flag(bool),
     Registry(Vec<String>),

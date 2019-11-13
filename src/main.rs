@@ -10,7 +10,6 @@ mod manifest;
 mod metadata;
 mod process;
 mod remove_dev_deps;
-mod serde_impl;
 mod toml;
 
 use std::{env, ffi::OsString, fs, path::Path};
