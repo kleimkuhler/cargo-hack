@@ -48,7 +48,7 @@ pub(crate) struct TomlWorkspace {
 }
 
 /// Corresponds to a `target` entry, but `TomlTarget` is already used.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub(crate) struct TomlPlatform {
     pub(crate) dependencies: Option<BTreeMap<String, TomlDependency>>,
@@ -60,7 +60,7 @@ pub(crate) struct TomlPlatform {
     // pub(crate) dev_dependencies2: Option<BTreeMap<String, TomlDependency>>,
 }
 
-#[derive(Debug, Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub(crate) struct TomlTarget {
     pub(crate) name: Option<String>,
@@ -81,14 +81,14 @@ pub(crate) struct TomlTarget {
     pub(crate) edition: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(untagged)]
 pub(crate) enum TomlDependency {
     Simple(String),
     Detailed(DetailedTomlDependency),
 }
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub(crate) struct DetailedTomlDependency {
     pub(crate) version: Option<String>,
