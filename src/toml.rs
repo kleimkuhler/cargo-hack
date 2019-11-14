@@ -84,7 +84,7 @@ pub(crate) struct TomlTarget {
 #[derive(Debug, Serialize)]
 #[serde(untagged)]
 pub(crate) enum TomlDependency {
-    Simple(String),
+    // Simple(String),
     Detailed(DetailedTomlDependency),
 }
 

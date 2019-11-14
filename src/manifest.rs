@@ -1,4 +1,5 @@
 use std::{
+    collections::BTreeMap,
     fs,
     ops::Deref,
     path::{Path, PathBuf},
@@ -6,7 +7,10 @@ use std::{
 
 use anyhow::{bail, Context, Result};
 
-use crate::toml::TomlManifest;
+use crate::{
+    metadata,
+    toml::{Publish, TomlManifest, TomlProject, TomlWorkspace},
+};
 
 // Based on https://github.com/rust-lang/cargo/blob/0.39.0/src/cargo/util/important_paths.rs
 /// Finds the root `Cargo.toml`.
@@ -64,4 +68,20 @@ impl Deref for Manifest {
     fn deref(&self) -> &Self::Target {
         &self.toml
     }
+}
+
+fn make_project(package: &metadata::Package, current_dir: &Path) -> (TomlManifest, PathBuf) {
+    let manifest = TomlManifest {
+        package: Some(TomlProject {
+            edition: Some("2018".into()),
+            name: "check_".to_string() + &package.name,
+            version: "0.0.0".to_string(),
+            publish: Publish::Flag(false),
+        }),
+        lib: None,
+        dependencies: Some(BTreeMap::new()),
+        workspace: Some(TomlWorkspace { members: None }),
+    };
+
+    unimplemented!()
 }
